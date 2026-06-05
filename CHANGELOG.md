@@ -7,31 +7,27 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Changed
-
-- **Layout (fmix-compatible)**: modules moved from `fmcp/` subdir to root (`fmcp_*.4th`);
-  `bin/fmcp` sets `$FMCP_HOME` on fpath; `fmcp test` runner (`fmcp_test.4th`).
-- **fjson 0.2.3** (`require fjson.4th`): tree parse/emit; `parse-string` uses `str-dup`.
-- **`fmcp_build.4th`**: slot-based `fmcp.obj-add-key`; no `>r` / Gforth locals on hot path;
-  `fmcp.tool-error-node` stores `b-text` before `b-id`.
-- **`fmcp_mcp.4th`**: `fmcp.m-method` (`2variable`); `mcp-handle-core` reads line from
-  `fmcp.linea` / `fmcp.lineu`.
-- Removed low-level manual JSON concat from response path.
+## [0.1.1] - 2026-06-06
 
 ### Fixed
 
-- `initialize` response advertises `capabilities.tools` (required for Cursor MCP tool discovery).
-- `bin/fmcp serve` — one long-lived Gforth process (`fmcp_serve.4th`, `fmcp.serve-stdio` + `read-stdin-line`) instead of spawning Gforth per line.
-- `fmcp_readline.4th` — fix `c!` store in `read-stdin-line`.
-- `bin/fmcp serve` — silence Gforth stderr (`redefined …`) so MCP clients do not treat it as protocol errors.
-- `fmcp.line-parse` — remove erroneous `2drop` after `fjson.parse` (parser consumes input).
-- `fmcp.object-get-str` / `fmcp.req-str` — `drop` (not `2drop`) when lookup returns `0`.
-- `tools/call` — stash request `id` in `fmcp.b-id` before `call-tool`; `tool-result-node` /
-  `tool-error-node` no longer take `id` from the stack (exec words leave `project_root` there).
-- `fmcp.parse-json` — `set-line` consumes the line; no extra `2drop`.
-- `fmcp.param-name` / `fmcp.arg-string` — `rot` before `object-get` (not `swap`).
-- `fmcp.serve-one-line` — `set-line` consumes `getenv` result (no `2dup`/`2drop`).
-- `fjson.pair-new` without `>r` before `str-dup` (fjson 0.2.3).
+- **Cursor MCP connect** — upgrade **fjson 0.2.4** so `initialize` with JSON booleans
+  (`listChanged: false`) parses; previously dropped silently with 0-byte reply.
+- **`initialize` protocolVersion** — respond with `2025-11-25` (Cursor expectation).
+- **`fmcp.emit-node-line`** — restore NDJSON (`cr` + flush); broken Content-Length framing
+  emitted literal `\r\n` text and broke stdio clients.
+- **`bin/fmcp serve`** — skip `reset_tty` on serve (stdin is a pipe, not a TTY).
+
+### Added
+
+- **`bin/fmcp-cursor-serve`** — wrapper with `FMCP_HOME`, sibling tool homes, and `PATH`.
+- **README** — Cursor `mcp.json` examples (Remote WSL, Windows+WSL, native Linux).
+- **Smoke E2E** — Cursor-exact handshake (`id: 0`, `false` in capabilities).
+- **Diagnostic Python MCP** in `tests/`: `test_mcp_*`, `mcp_probe_*` (optional Cursor compare).
+
+### Changed
+
+- **fjson** dependency pin `0.2.3` → `0.2.4` in `package.4th`.
 
 ## [0.1.0] - 2026-06-04
 

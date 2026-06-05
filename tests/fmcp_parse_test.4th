@@ -34,4 +34,7 @@ T{ s\" {\"jsonrpc\":\"2.0\",\"id\":\"7\",\"method\":\"x\"}"
 T{ s\" {\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"name\":\"fmix_test\",\"arguments\":{\"project_root\":\"/tmp\"}}}"
     fmcp.parse-json 0<> -> -1 fmcp.line-free }T
 
+T{ s\" {\"capabilities\":{\"roots\":{\"listChanged\":false}}}"
+    fmcp.parse-json 0<> -> -1 fmcp.line-free }T
+
 #ERRORS @ 0= [IF] ." fmcp_parse_test OK" cr [ELSE] ." fmcp_parse_test FAILED" cr [THEN]

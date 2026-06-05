@@ -21,7 +21,9 @@ reset_tty() {
     while IFS= read -r -s -t 0.02 -n 1 _ch < "$tty_path"; do :; done
 }
 
-reset_tty
+if [ "${1:-}" != "serve" ]; then
+    reset_tty
+fi
 
 if [ $# -eq 0 ]; then
     FMCP_CMD=help
@@ -63,7 +65,6 @@ if [ "$FMCP_CMD" = "serve" ]; then
         -e "0 (bye)" 2>>"$stderr_dest"
     status=$?
     set -e
-    reset_tty
     exit "$status"
 fi
 

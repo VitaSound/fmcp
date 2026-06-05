@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# MCP entry for Cursor on Windows → WSL. Sets env and execs fmcp serve.
+# Use in mcp.json:
+#   "command": "C:\\Windows\\System32\\wsl.exe",
+#   "args": ["-d", "Ubuntu-22.04", "-e", "/home/sea/fmcp/bin/fmcp-cursor-serve"]
+
+: "${FMCP_HOME:=/home/sea/fmcp}"
+: "${FMIX_HOME:=/home/sea/fmix}"
+: "${FLINT_HOME:=/home/sea/flint}"
+: "${FCOV_HOME:=/home/sea/fcov}"
+export FMCP_HOME FMIX_HOME FLINT_HOME FCOV_HOME
+export FMCP_LOG="${FMCP_LOG:-$FMCP_HOME/.fmcp/serve.log}"
+export PATH="$FMCP_HOME/bin:$FMIX_HOME/bin:$FLINT_HOME/bin:$FCOV_HOME/bin:/usr/local/bin:/usr/bin:/bin"
+unset GFORTHPATH
+
+exec "$FMCP_HOME/bin/fmcp" serve

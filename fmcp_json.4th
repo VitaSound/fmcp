@@ -1,8 +1,8 @@
-\ fmcp_json.4th — fjson 0.2.3 tree parse, build helpers, emit.
+\ fmcp_json.4th — fjson 0.2.4 tree parse, build helpers, emit.
 
 [IFUNDEF] fmcp-fjson-loaded
     require forth-packages/fenum/0.1.1/fenum.4th
-    require forth-packages/fjson/0.2.3/fjson.4th
+    require forth-packages/fjson/0.2.4/fjson.4th
     2drop
     true constant fmcp-fjson-loaded
 [THEN]
@@ -114,12 +114,6 @@ variable fmcp.slurp-buf
 
 [THEN]
 
-: fmcp.emit-node-line ( node -- )
-    fjson.emit-to-stdout
-    dup fjson.emit-node cr
-    stdout flush-file drop
-    fjson.node-free ;
-
 variable fmcp.emit-node
 
 : fmcp.node-to-str ( node -- jsona jsonu )
@@ -133,3 +127,9 @@ variable fmcp.emit-node
     s" /tmp/fmcp-json.out" fmcp.slurp-file dup 0= IF
         s" {}" 2 EXIT
     THEN ;
+
+: fmcp.emit-node-line ( node -- )
+    fjson.emit-to-stdout
+    dup fjson.emit-node cr
+    stdout flush-file drop
+    fjson.node-free ;

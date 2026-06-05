@@ -136,10 +136,10 @@ variable fmcp.schema-node
     s" capabilities" fmcp.b-wrap @ fmcp.obj-add-val
     ulist-new fmcp.b-entry !
     s" name" s" fmcp" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" version" s" 0.1.0" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" version" s" 0.1.1" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj fmcp.b-val !
     s" serverInfo" fmcp.b-wrap @ fmcp.obj-add-val
-    s" protocolVersion" s" 2024-11-05" fjson.node-str fmcp.b-wrap @ fmcp.obj-add-key
+    s" protocolVersion" s" 2025-11-25" fjson.node-str fmcp.b-wrap @ fmcp.obj-add-key
     fmcp.b-wrap @ fmcp.build-obj ;
 
 : fmcp.build-tools-list-result ( -- node )
