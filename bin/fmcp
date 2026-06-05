@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# fmcp launcher — MCP stdio bridge for VitaSound Forth tooling.
+#
+# Conventions (shared with bin/fmix, bin/flint, bin/fcov):
+#   - $<TOOL>_HOME  — tool source tree (default $HOME/<tool>)
+#   - $<TOOL>_CMD   — subcommand
+#   - $<TOOL>_ARG   — positional argument string
+#
+: "${FMCP_HOME:=$HOME/fmcp}"
+GFORTH="${GFORTH:-gforth}"
+unset GFORTHPATH
+
+reset_tty() {
+    local tty_path
+    tty_path=$(tty 2>/dev/null || true)
+    case "$tty_path" in ""|"not a tty") return ;; esac
+    [ -r "$tty_path" ] && [ -w "$tty_path" ] || return
+    stty sane < "$tty_path" 2>/dev/null || true
+    printf '\033[?2004l' > "$tty_path" 2>/dev/null || true
+    local _ch
+    while IFS= read -r -s -t 0.02 -n 1 _ch < "$tty_path"; do :; done
+}
+
+reset_tty
+
+if [ $# -eq 0 ]; then
+    FMCP_CMD=help
+    FMCP_ARG=
+else
+    FMCP_CMD=$1
+    shift
+    if [ "$FMCP_CMD" = "test" ]; then
+        FMCP_TEST_ISOLATED=1
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --isolated) FMCP_TEST_ISOLATED=1; shift ;;
+                --shared)   FMCP_TEST_ISOLATED=0; shift ;;
+                --)         shift; break ;;
+                --*)
+                    echo "[ERROR] Unknown test flag: $1" >&2
+                    exit 1
+                    ;;
+                *) break ;;
+            esac
+        done
+        export FMCP_TEST_ISOLATED
+    fi
+    FMCP_ARG=$*
+fi
+export FMCP_HOME FMCP_CMD FMCP_ARG
+
+if [ "$FMCP_CMD" = "serve" ]; then
+    if [ -n "${FMCP_DEBUG:-}" ]; then
+        stderr_dest="/tmp/fmcp-stderr.log"
+    else
+        stderr_dest="/dev/null"
+    fi
+    set +e
+    "$GFORTH" \
+        -e "s\" $FMCP_HOME\" fpath also-path" \
+        -e "require fmcp_serve.4th" \
+        -e "fmcp.serve-stdio" \
+        -e "0 (bye)" 2>>"$stderr_dest"
+    status=$?
+    set -e
+    reset_tty
+    exit "$status"
+fi
+
+set +e
+"$GFORTH" \
+    -e "s\" $FMCP_HOME\" fpath also-path" \
+    "$FMCP_HOME/fmcp.4th"
+status=$?
+set -e
+reset_tty
+exit "$status"

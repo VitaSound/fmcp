@@ -1,0 +1,7 @@
+build/
+forth-packages/
+.fcov/
+*.swp
+*.swo
+.DS_Store
+tests/.venv-test-mcp/
