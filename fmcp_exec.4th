@@ -102,8 +102,10 @@ variable fmcp.cap-seq
     s" gforth /tmp/fmcp-eval.4th < /dev/null" ;
 
 : fmcp.timeout-prefix ( timeout-u -- pre-a pre-u )
-    fmcp.u>dec s" fmcp timed out after " fmcp.str-concat
-    s" seconds" fmcp.str-concat ;
+    fmcp.u>dec
+    s" fmcp timed out after "
+    2swap fmcp.prepend-text
+    s"  seconds" fmcp.str-concat ;
 
 : fmcp.gforth-eval ( root-a root-u source-a source-u timeout-u -- out-a out-u ec )
     fmcp.eval-timeout !
@@ -139,9 +141,10 @@ variable fmcp.cap-seq
     fmcp.eval-ec @ ;
 
 : fmcp.mcp-ping-text ( -- a u )
-    s" fmcp ok version " fmcp.str-concat
+    s" fmcp ok version "
     fmcp-ver-data 2@ fmcp.str-concat
-    s" serve_pid " fmcp.str-concat
+    s"  serve_pid "
+    fmcp.str-concat
     getpid fmcp.u>dec fmcp.str-concat ;
 
 : fmcp.fmix-home ( -- a u )

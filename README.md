@@ -129,7 +129,7 @@ After `mcp.json` is set up, enable the server and teach the agent to call it.
 
 1. **Settings → MCP** — turn on **`vitasound-forth`**.
 2. Status must be **connected** (green). If not: **Refresh**, then check paths in `mcp.json` and [doc/API.md](doc/API.md).
-3. In chat you can ask: *«List MCP tools from vitasound-forth»* — expect `fmix_test`, `flint_lint`, `fmix_packages_get`, `fcov_run`, `fcov_report`, `gforth_eval`.
+3. In chat you can ask: *«List MCP tools from vitasound-forth»* — expect `mcp_ping`, `shell_run`, `fmix_test`, `flint_lint`, `fmix_packages_get`, `fcov_run`, `fcov_report`, `gforth_eval`.
 
 ### 2. Tell the agent to use MCP (not shell)
 
@@ -177,8 +177,10 @@ Full tool params and agent workflow: [AGENTS.md](AGENTS.md).
 ### 4. Verify without Cursor
 
 ```bash
-bash tests/smoke_test.sh          # fmcp protocol
-bash tests/test_mcp_smoke.sh      # optional Python reference MCP
+bash tests/smoke_test.sh                    # fmcp protocol
+bash tests/mcp_session_timeout_test.sh    # timeout eval + ping in one session
+bash tests/mcp_shell_run_timeout_test.sh  # shell_run sleep + ping in one session
+bash tests/test_mcp_smoke.sh              # optional Python reference MCP
 ```
 
 ## Forth style

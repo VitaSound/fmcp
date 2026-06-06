@@ -51,11 +51,23 @@ fmcp.project-path 2constant tool-root
     s\" \\\",\\\"test_command\\\":\\\"fmix test\\\"}"
     fmcp.str-concat ;
 
+: fmcp.args-shell-run ( -- a u )
+    s\" {\\\"project_root\\\":\\\""
+    tool-root fmcp.str-concat
+    s\" \\\",\\\"command\\\":\\\"echo hello\\\"}"
+    fmcp.str-concat ;
+
 fmcp.under-fcov? [IF]
     cr ." fmcp_call_tool_test SKIP (under fcov)" cr
 [ELSE]
 
 T{ s" gforth_eval" fmcp.args-gforth-eval fmcp.tools-call-line
+    fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
+
+T{ s" mcp_ping" fmcp.args-empty fmcp.tools-call-line
+    fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
+
+T{ s" shell_run" fmcp.args-shell-run fmcp.tools-call-line
     fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
 
 T{ s" fmix_test" fmcp.args-fmix-test fmcp.tools-call-line

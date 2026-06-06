@@ -9,16 +9,17 @@ require fmcp_exec.4th
     utime fmcp.tool-t0-ut 2! ;
 
 : fmcp.tool-elapsed-ms ( -- u )
-    utime fmcp.tool-t0-ut 2@ d- d>s 1000 * ;
+    utime fmcp.tool-t0-ut 2@ d- d>s 1000 / ;
 
 : fmcp.tool-meta-line ( ec -- a u )
+    >r
     base @ >r decimal
-    swap >r
-    fmcp.tool-elapsed-ms fmcp.u>dec
-    s" fmcp elapsed_ms=" fmcp.str-concat
-    s" exit_code=" fmcp.str-concat
+    s" [fmcp] elapsed_ms="
+    fmcp.tool-elapsed-ms fmcp.u>dec fmcp.str-concat
+    s"  exit_code=" fmcp.str-concat
+    r> base !
     r> fmcp.u>dec fmcp.str-concat
-    r> base ! ;
+    s" \n" fmcp.str-concat ;
 
 : fmcp.tool-format-result ( text-a text-u ec -- text-a text-u ec )
     >r
@@ -26,7 +27,7 @@ require fmcp_exec.4th
     trunc? IF
         s\" \nfmcp output truncated" fmcp.str-concat THEN
     r@ fmcp.tool-meta-line
-    fmcp.prepend-text
+    2swap fmcp.prepend-text
     r> ;
 
 : fmcp.tool-result-final ( text-a text-u ec -- node )

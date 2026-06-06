@@ -14,9 +14,21 @@ echo "$init_out" | grep -vq '"id":"1"'
 printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
   | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q gforth_eval
 
+printf '%s\n' '{"jsonrpc":"2.0","id":6,"method":"tools/list"}' \
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q mcp_ping
+
+printf '%s\n' '{"jsonrpc":"2.0","id":7,"method":"tools/list"}' \
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q shell_run
+
+mcp_ping_out=$(printf '%s\n' \
+  '{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"mcp_ping","arguments":{}}}' \
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve)
+echo "$mcp_ping_out" | grep -q 'fmcp ok version'
+echo "$mcp_ping_out" | grep -q 'elapsed_ms='
+
 printf '%s\n' \
   '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"gforth_eval","arguments":{"project_root":"'"$FMCP_HOME"'","source":"42 . cr"}}}' \
-  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q '"text":"42'
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q '42'
 
 printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nope","arguments":{}}}' \
   | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q unknown

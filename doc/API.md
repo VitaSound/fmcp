@@ -79,8 +79,16 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 | `fcov_run` | `fmcp.fcov-run` | `project_root`, optional `test_command` |
 | `fcov_report` | `fmcp.fcov-report-json` | `project_root` |
 | `gforth_eval` | `fmcp.gforth-eval` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
+| `mcp_ping` | `fmcp.mcp-ping-text` | _(none)_ |
+| `shell_run` | `fmcp.shell-run` | `project_root`, `command`, optional `timeout_seconds` (default 10, max 300) |
 
-`gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `timeout N gforth --no-rc` in `project_root`. Exit 124 → `[fmcp] timed out after Ns` prefix and `isError: true`.
+`gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `gforth /tmp/fmcp-eval.4th` in `project_root` via background capture (`fmcp.run-capture-bg`). Exit 124 → `fmcp timed out after N seconds` prefix and `isError: true`.
+
+`shell_run` runs an arbitrary shell command in `project_root` with the same timeout/capture path as `gforth_eval`.
+
+`mcp_ping` returns `fmcp ok version … serve_pid …` for session health checks.
+
+All tool results prepend a metadata line: `[fmcp] elapsed_ms=…  exit_code=…` (newline before tool output). Output is truncated at `FMCP_MAX_OUTPUT` (default 262144 bytes). Timeout (exit 124) adds `fmcp timed out after N seconds` to the body.
 
 Unknown tool → JSON error with `"unknown tool"` in text content.
 
@@ -93,7 +101,9 @@ Unknown tool → JSON error with `"unknown tool"` in text content.
 | `fmcp.4th` | CLI dispatch, help, version, test. |
 | `fmcp_mcp.4th` | JSON-RPC method routing. |
 | `fmcp_tools.4th` | `tools/list` / `tools/call`, result JSON shape. |
-| `fmcp_exec.4th` | Shell out to fmix/flint/fcov binaries. |
+| `fmcp_exec.4th` | Shell out to fmix/flint/fcov binaries; `run-capture-bg`, `gforth-eval`, `shell-run`. |
+| `fmcp_poll.4th` | PID poll/kill for background subprocess timeout (exit 124). |
+| `fmcp_shellfrags.4th` | Shell byte fragments (`>`, `;`, `--` safe in Gforth source). |
 | `fmcp_json.4th` | fjson 0.2.3, `fmcp.line-parse`, `fmcp.parse-json`, emit. |
 | `fmcp_utils.4th` | Paths, slurp, str helpers, `system-checked`. |
 | `fmcp_build.4th` | JSON-RPC response tree builders. |

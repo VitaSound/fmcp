@@ -44,6 +44,8 @@ Use MCP tools from **vitasound-forth** when working on any VitaSound Forth check
 | `fcov_run` | Coverage collection (when asked) | `project_root`, optional `test_command` |
 | `fcov_report` | Coverage JSON report | `project_root` |
 | `gforth_eval` | Ad-hoc Gforth snippet in `project_root` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
+| `mcp_ping` | Health check (version, serve pid) | _(none)_ |
+| `shell_run` | Shell command in `project_root` | `project_root`, `command`, optional `timeout_seconds` (default 10, max 300) |
 
 ### Typical workflow
 
