@@ -7,6 +7,8 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-06-06
+
 ### Fixed
 
 - **`fmcp.run-capture`** — capture temp paths include process id (`/tmp/fmcp-cap-<pid>-<n>.out`);
