@@ -200,10 +200,24 @@ Follow [frules](https://github.com/VitaSound/frules) (Gforth dialect). See `AGEN
 
 ## Testing
 
+Two contours — do not mix them in one `fcov run`:
+
+| Contour | Command | Purpose |
+|---------|---------|---------|
+| **Correctness** | `fmix test` (isolated, default) | Full regression: subprocess CLI, pipe serve, MCP tools |
+| **Coverage** | `./tests/coverage_mcp_gate.sh` | fcov instrumentation + shared in-process tests + guards |
+
 ```bash
-fmcp test
-bash tests/smoke_test.sh   # smoke E2E (stdio protocol, no Cursor)
+fmcp test                    # or: fmix test  — isolated subprocess per *_test.4th
+./tests/coverage_mcp_gate.sh # fcov clean → bin/fmcp test --shared → 100% gate
+bash tests/smoke_test.sh     # smoke E2E (stdio protocol, no Cursor)
 ```
+
+### fcov / coverage rules
+
+- **Before every `fcov run`:** `fcov clean` (or `rm -rf .fcov/calls` if a run was killed). Check size: `du -sh .fcov/calls` — if **> ~100 MB**, subprocess storm; clean before aggregate.
+- **Under fcov** (`FCOV_CALLS_LOG` set): subprocess tests skip via `fmcp.under-fcov?` — no nested `fmix test`, `fcov_run`, CLI/pipe serve, or `gforth_eval` storms.
+- **Metric:** production colon-defs in `fmcp_*.4th` (not `tests/`); gate denylist excludes subprocess-only words (`fmcp.run-isolated`, `fmcp.serve-stdio`, exec wrappers, etc.) — see `tests/coverage_gate_check.py`.
 
 **Smoke E2E** pipes NDJSON lines into `fmcp serve` and checks grep patterns —
 see doc/API.md for details.

@@ -8,6 +8,3 @@ require fmcp_mcp.4th
         1 (bye)
     THEN
     fmcp.set-line fmcp.mcp-handle-core ;
-
-fmcp.handle-env-line
-0 (bye)

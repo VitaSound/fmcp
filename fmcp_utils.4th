@@ -94,6 +94,9 @@ variable fmcp.write-fid
 : fmcp.project-path ( -- addr u )
     pad 4096 get-dir fmcp.str-dup ;
 
+: fmcp.under-fcov? ( -- f )
+    s" FCOV_CALLS_LOG" getenv nip ;
+
 : fmcp.restore-terminal ( -- )
     s" stty sane 2>/dev/null" system ;
 

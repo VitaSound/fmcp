@@ -10,6 +10,10 @@ fmcp.home-path s" forth-packages/ttester/1.2.1/ttester.4th" fmcp.fs-join require
 
 0 #ERRORS !
 
-T{ 1 fjson.node-num fmcp.b-id-node ! s" x" 0 fmcp.tool-result-node fmcp.emit-node-line depth 0= -> -1 }T
+fmcp.under-fcov? [IF]
+    T{ 1 fjson.node-num fmcp.b-id-node ! s" x" 0 fmcp.tool-result-node fmcp.emit-node-line -> -1 }T
+[ELSE]
+    T{ 1 fjson.node-num fmcp.b-id-node ! s" x" 0 fmcp.tool-result-node fmcp.emit-node-line depth 0= -> -1 }T
+[THEN]
 
 #ERRORS @ 0= [IF] ." fmcp_emit_test OK" cr [ELSE] ." fmcp_emit_test FAILED" cr [THEN]

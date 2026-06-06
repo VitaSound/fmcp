@@ -7,6 +7,20 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Coverage gate** — `tests/coverage_mcp_gate.sh` + `tests/coverage_gate_check.py` (100% production colon-defs with denylist).
+- **fcov guards** — `fmcp.under-fcov?` in `fmcp_utils.4th`; subprocess tests skip under instrumentation.
+- **In-process coverage** — `tests/fmcp_coverage_direct_test.4th`, `run_serve_one.sh`, `run_handle_env.sh` (real gforth via `FCOV_REAL_GFORTH`).
+- **Subprocess tests** (outside fcov only) — `fmcp_cli_test.4th`, `fmcp_readline_serve_test.4th`, `fmcp_call_tool_test.4th`.
+
+### Changed
+
+- **`fmcp_cli.4th`** — CLI words extracted from `fmcp.4th` for testability.
+- **`fmcp_line.4th`** — library-only (no auto-run on `require`).
+- **`fmcp_test.4th`** — `FMIX_TEST_ISOLATED` fallback when `FMCP_TEST_ISOLATED` unset (`fmix test --shared` / `fcov run`).
+- **`package.4th`** — `key-list fcov-exclude tests/`.
+
 ## [0.1.3] - 2026-06-06
 
 ### Fixed

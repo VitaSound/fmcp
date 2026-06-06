@@ -16,4 +16,10 @@ fmcp.line-parse drop
 
 T{ s" timeout_seconds" 10 fmcp.arg-number-default 10 = -> -1 }T
 
+s\" {\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"gforth_eval\",\"arguments\":{\"project_root\":\"/tmp\",\"source\":\"1\"}}}"
+fmcp.line-parse drop
+
+T{ s" project_root" fmcp.arg-string nip 0> -> -1 }T
+T{ s" missing_key" fmcp.arg-string nip 0= -> -1 }T
+
 #ERRORS @ 0= [IF] ." fmcp_json_args_test OK" cr [ELSE] ." fmcp_json_args_test FAILED" cr [THEN]

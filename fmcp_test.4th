@@ -27,14 +27,21 @@ variable fmcp.ERROR 0 fmcp.ERROR !
 variable fmcp.test-isolated?
 true fmcp.test-isolated? !
 
-: fmcp.read-isolated-mode ( -- )
-    s" FMCP_TEST_ISOLATED" getenv 2dup nip 0= IF
-        2drop true fmcp.test-isolated? ! EXIT
+: fmcp.read-isolated-env ( env-a env-u -- )
+    2dup nip 0= IF
+        2drop EXIT
     THEN
     s" 0" compare 0= IF
         false fmcp.test-isolated? !
     ELSE
         true fmcp.test-isolated? !
+    THEN ;
+
+: fmcp.read-isolated-mode ( -- )
+    true fmcp.test-isolated? !
+    s" FMCP_TEST_ISOLATED" getenv fmcp.read-isolated-env
+    fmcp.test-isolated? @ IF
+        s" FMIX_TEST_ISOLATED" getenv fmcp.read-isolated-env
     THEN ;
 
 fmcp.read-isolated-mode

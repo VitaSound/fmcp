@@ -9,6 +9,7 @@ forth-package
     key-value fmix ~> 0.7
     key-value flint ~> 0.2
     key-value fcov ~> 0.3
+    key-list fcov-exclude tests/
     key-list tags mcp
     key-list tags gforth
     key-list tags cursor
