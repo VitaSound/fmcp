@@ -10,6 +10,6 @@ fmcp.home-path s" forth-packages/ttester/1.2.1/ttester.4th" fmcp.fs-join require
 
 0 #ERRORS !
 
-T{ s" t" s" d" fmcp.build-tool-entry dup >r 0<> r> fjson.node-free -> -1 }T
+T{ s" t" s" d" fmcp.schema-project-root-parse fmcp.build-tool-entry dup >r 0<> r> fjson.node-free -> -1 }T
 
 #ERRORS @ 0= [IF] ." fmcp_build_entry_test OK" cr [ELSE] ." fmcp_build_entry_test FAILED" cr [THEN]

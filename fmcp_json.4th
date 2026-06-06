@@ -132,7 +132,7 @@ variable fmcp.slurp-buf
     r/o open-file throw
     fmcp.slurp-fid !
     fmcp.slurp-fid @ file-size throw d>s dup 0= IF
-        fmcp.slurp-fid @ close-file throw 2drop 0 0 EXIT
+        drop fmcp.slurp-fid @ close-file throw 0 0 EXIT
     THEN
     fmcp.slurp-u !
     fmcp.slurp-u @ allocate throw fmcp.slurp-buf !

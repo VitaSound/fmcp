@@ -30,6 +30,22 @@ variable fmcp.schema-node
     s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"source\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\",\"source\"]}"
     fjson.parse ;
 
+: fmcp.schema-fmix-test-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_file\":{\"type\":\"string\"}},\"required\":[\"project_root\"]}"
+    fjson.parse ;
+
+: fmcp.schema-fcov-run-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_command\":{\"type\":\"string\"}},\"required\":[\"project_root\"]}"
+    fjson.parse ;
+
+: fmcp.schema-shell-run-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"command\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\",\"command\"]}"
+    fjson.parse ;
+
+: fmcp.schema-empty-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{}}"
+    fjson.parse ;
+
 : fmcp.init-schema ( -- )
     fmcp.schema-project-root-parse fmcp.schema-node ! ;
 
@@ -65,13 +81,14 @@ variable fmcp.schema-node
     fmcp.b-entry @ fmcp.build-obj fmcp.b-inner @ ulist-add
     fmcp.b-inner @ fmcp.build-arr ;
 
-: fmcp.build-tool-entry ( name-a name-u desc-a desc-u -- node )
+: fmcp.build-tool-entry ( name-a name-u desc-a desc-u schema-node -- node )
+    fmcp.b-val !
     fmcp.b-desc 2!
     fmcp.b-name 2!
     ulist-new fmcp.b-entry !
     s" name" fmcp.b-name 2@ fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" description" fmcp.b-desc 2@ fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" inputSchema" fmcp.schema-project-root-parse fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.b-val @ fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 
 : fmcp.build-gforth-eval-entry ( -- node )
@@ -129,7 +146,7 @@ variable fmcp.schema-node
     ulist-new fmcp.b-wrap !
     fmcp.b-entry @ fmcp.content-array fmcp.b-val !
     s" content" fmcp.b-wrap @ fmcp.obj-add-val
-    fmcp.b-ec @ fjson.node-bool fmcp.b-val !
+    fmcp.b-ec @ 0= 0= fjson.node-bool fmcp.b-val !
     s" isError" fmcp.b-wrap @ fmcp.obj-add-val
     fmcp.b-wrap @ fmcp.build-obj ;
 
@@ -153,13 +170,43 @@ variable fmcp.schema-node
     s" protocolVersion" s" 2025-11-25" fjson.node-str fmcp.b-wrap @ fmcp.obj-add-key
     fmcp.b-wrap @ fmcp.build-obj ;
 
+: fmcp.build-mcp-ping-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" mcp_ping" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Health check: fmcp version and serve pid" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-empty-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
+: fmcp.build-shell-run-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" shell_run" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run shell command in project_root (timeout default 10s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-shell-run-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
+: fmcp.build-fmix-test-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" fmix_test" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fmix test" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-fmix-test-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
+: fmcp.build-fcov-run-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" fcov_run" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fcov run, optional test_command" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-fcov-run-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
 : fmcp.build-tools-list-result ( -- node )
     ulist-new fmcp.b-lst !
-    s" fmix_test" s" Run fmix test" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" fmix_packages_get" s" Run fmix packages.get" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" flint_lint" s" Run flint lint" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" fcov_run" s" Run fcov run" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" fcov_report" s" fcov report json" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    fmcp.build-mcp-ping-entry fmcp.b-lst @ ulist-add
+    fmcp.build-shell-run-entry fmcp.b-lst @ ulist-add
+    fmcp.build-fmix-test-entry fmcp.b-lst @ ulist-add
+    s" fmix_packages_get" s" Run fmix packages.get" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    s" flint_lint" s" Run flint lint" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    fmcp.build-fcov-run-entry fmcp.b-lst @ ulist-add
+    s" fcov_report" s" fcov report json" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-gforth-eval-entry fmcp.b-lst @ ulist-add
     ulist-new fmcp.b-wrap !
     fmcp.b-lst @ fmcp.build-arr fmcp.b-val !

@@ -1,6 +1,9 @@
 \ fmcp_exec.4th — run fmix/flint/fcov in a project directory, capture output.
 
 require fmcp_utils.4th
+require fmcp_version.4th
+require fmcp_shellfrags.4th
+require fmcp_poll.4th
 
 variable fmcp.eval-ec
 2variable fmcp.eval-source
@@ -11,6 +14,23 @@ variable fmcp.eval-ec
 variable fmcp.eval-timeout
 variable fmcp.cap-seq
 2variable fmcp.cap-out-path
+2variable fmcp.cap-pid-path
+2variable fmcp.cap-ec-path
+
+: fmcp.max-timeout-u ( -- u )
+    s" FMCP_MAX_TIMEOUT" getenv 2dup nip IF
+        0 0 2swap >number 2drop drop dup IF
+            1 max 300 min EXIT
+        THEN
+        2drop
+    THEN
+    2drop 300 ;
+
+: fmcp.clamp-timeout ( timeout-u -- timeout-u )
+    1 fmcp.max-timeout-u fmcp.clamp-u
+    dup fmcp.max-timeout-u > IF
+        drop fmcp.max-timeout-u EXIT
+    THEN ;
 
 : fmcp.capture-path! ( -- )
     s" /tmp/fmcp-cap-"
@@ -18,8 +38,12 @@ variable fmcp.cap-seq
     s" -" fmcp.str-concat
     fmcp.cap-seq @ 1+ dup fmcp.cap-seq !
     fmcp.u>dec fmcp.str-concat
-    s" .out" fmcp.str-concat
-    fmcp.cap-out-path 2! ;
+    2dup s" .out" fmcp.str-concat fmcp.cap-out-path 2!
+    2dup s" .pid" fmcp.str-concat fmcp.cap-pid-path 2!
+    s" .ec" fmcp.str-concat fmcp.cap-ec-path 2! ;
+
+: fmcp.touch-empty ( path-a path-u -- )
+    w/o create-file throw close-file throw ;
 
 : fmcp.run-capture ( root-a root-u inner-a inner-u -- out-a out-u ec )
     fmcp.cap-inner 2!
@@ -29,44 +53,67 @@ variable fmcp.cap-seq
     s" cd " fmcp.cap-root 2@ fmcp.str-concat
     s"  && " fmcp.str-concat
     fmcp.cap-inner 2@ fmcp.str-concat
-    s"  > " fmcp.str-concat
+    fmcp.frag-out% fmcp.str-concat
     fmcp.cap-out-path 2@ fmcp.str-concat
-    s"  2>&1" fmcp.str-concat
+    fmcp.frag-redir2% fmcp.str-concat
     system
+    fmcp.exit-status >r
+    fmcp.restore-terminal
     fmcp.cap-out-path 2@ fmcp.slurp-file
-    fmcp.exit-status ;
+    r> ;
 
-: fmcp.run-capture-timed ( root-a root-u inner-a inner-u timeout-u -- out-a out-u ec )
+: fmcp.run-capture-bg-start ( -- pid )
+    fmcp.cap-root 2@ fmcp.validate-path 2drop
+    s" cd " fmcp.cap-root 2@ fmcp.str-concat
+    fmcp.frag-sh-c% fmcp.str-concat
+    fmcp.frag-squote% fmcp.str-concat
+    fmcp.cap-inner 2@ fmcp.str-concat
+    fmcp.frag-out% fmcp.str-concat
+    fmcp.cap-out-path 2@ fmcp.str-concat
+    fmcp.frag-redir2% fmcp.str-concat
+    fmcp.frag-ec-echo% fmcp.str-concat
+    fmcp.cap-ec-path 2@ fmcp.str-concat
+    fmcp.frag-squote% fmcp.str-concat
+    fmcp.frag-pid-echo% fmcp.str-concat
+    fmcp.cap-pid-path 2@ fmcp.str-concat
+    system fmcp.restore-terminal
+    fmcp.cap-pid-path 2@ fmcp.read-pid ;
+
+: fmcp.run-capture-bg ( root-a root-u inner-a inner-u timeout-u -- out-a out-u ec )
     fmcp.eval-timeout !
     fmcp.cap-inner 2!
     fmcp.cap-root 2!
+    fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
     fmcp.eval-timeout @ 0= IF
         fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.run-capture EXIT
     THEN
-    s" ( timeout "
-    fmcp.eval-timeout @ fmcp.u>dec fmcp.str-concat
-    s"  " fmcp.str-concat
-    fmcp.cap-inner 2@ fmcp.str-concat
-    s" )" fmcp.str-concat
-    fmcp.cap-inner 2!
-    fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.run-capture ;
+    fmcp.capture-path!
+    fmcp.cap-out-path 2@ fmcp.touch-empty
+    fmcp.cap-pid-path 2@ fmcp.touch-empty
+    fmcp.cap-ec-path 2@ fmcp.touch-empty
+    fmcp.run-capture-bg-start fmcp.eval-timeout @
+    fmcp.cap-ec-path 2@ fmcp.poll-wait fmcp.eval-ec !
+    fmcp.cap-out-path 2@ fmcp.slurp-file
+    dup IF
+    ELSE 2drop s" " THEN
+    fmcp.eval-ec @ ;
 
 : fmcp.gforth-eval-cmd ( -- cmd-a cmd-u )
-    s" gforth --no-rc /tmp/fmcp-eval.4th" ;
+    s" gforth /tmp/fmcp-eval.4th < /dev/null" ;
 
 : fmcp.timeout-prefix ( timeout-u -- pre-a pre-u )
-    fmcp.u>dec s" [fmcp] timed out after " fmcp.str-concat
-    s" s" fmcp.str-concat ;
+    fmcp.u>dec s" fmcp timed out after " fmcp.str-concat
+    s" seconds" fmcp.str-concat ;
 
 : fmcp.gforth-eval ( root-a root-u source-a source-u timeout-u -- out-a out-u ec )
     fmcp.eval-timeout !
     fmcp.eval-source-in 2!
     fmcp.eval-root 2!
-    fmcp.eval-timeout @ 1 300 fmcp.clamp-u fmcp.eval-timeout !
+    fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
     fmcp.eval-source-in 2@ s"  bye" fmcp.str-concat fmcp.eval-source 2!
     s" /tmp/fmcp-eval.4th" fmcp.eval-source 2@ fmcp.write-text-file
     fmcp.eval-root 2@ fmcp.gforth-eval-cmd fmcp.eval-timeout @
-    fmcp.run-capture-timed
+    fmcp.run-capture-bg
     fmcp.eval-ec !
     fmcp.eval-ec @ 124 = IF
         fmcp.eval-timeout @ fmcp.timeout-prefix
@@ -74,6 +121,28 @@ variable fmcp.cap-seq
     THEN
     fmcp.eval-ec @ ;
 
+: fmcp.shell-run ( root-a root-u cmd-a cmd-u timeout-u -- out-a out-u ec )
+    { root-a root-u cmd-a cmd-u timeout-u }
+    timeout-u fmcp.eval-timeout !
+    root-a root-u fmcp.cap-root 2!
+    cmd-u 4096 > IF
+        s" fmcp command too long, max 4096 bytes" 1 EXIT
+    THEN
+    cmd-a cmd-u fmcp.cap-inner 2!
+    fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
+    fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.eval-timeout @ fmcp.run-capture-bg
+    fmcp.eval-ec !
+    fmcp.eval-ec @ 124 = IF
+        fmcp.eval-timeout @ fmcp.timeout-prefix
+        2swap fmcp.prepend-text
+    THEN
+    fmcp.eval-ec @ ;
+
+: fmcp.mcp-ping-text ( -- a u )
+    s" fmcp ok version " fmcp.str-concat
+    fmcp-ver-data 2@ fmcp.str-concat
+    s" serve_pid " fmcp.str-concat
+    getpid fmcp.u>dec fmcp.str-concat ;
 
 : fmcp.fmix-home ( -- a u )
     s" HOME" getenv s" /fmix" fmcp.str-concat
@@ -119,6 +188,5 @@ variable fmcp.cap-seq
 
 : fmcp.fcov-report-json { root-a root-u -- }
     fmcp.fcov-home s" fcov" s" " fmcp.bin-cmd
-    s" report --format json" fmcp.str-concat
+    s\" report --format json" fmcp.str-concat
     root-a root-u 2swap fmcp.run-capture ;
-

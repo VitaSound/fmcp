@@ -69,6 +69,21 @@
 : fmcp.prepend-text { pre-a pre-u text-a text-u -- a u }
     pre-a pre-u text-a text-u fmcp.str-concat ;
 
+: fmcp.max-output-u ( -- u )
+    s" FMCP_MAX_OUTPUT" getenv 2dup nip IF
+        0 0 2swap >number 2drop drop dup IF
+            1024 max EXIT
+        THEN
+        2drop
+    THEN
+    2drop 262144 ;
+
+: fmcp.truncate-text { a u max-u -- a-new u-new truncated? }
+    u max-u <= IF a u false EXIT THEN
+    max-u allocate throw { mem }
+    a mem max-u move
+    mem max-u true ;
+
 [THEN]
 
 2variable fmcp.write-text
@@ -98,7 +113,7 @@ variable fmcp.write-fid
     s" FCOV_CALLS_LOG" getenv nip ;
 
 : fmcp.restore-terminal ( -- )
-    s" stty sane 2>/dev/null" system ;
+    s" stty sane" system ;
 
 : fmcp.exit ( -- )
     fmcp.restore-terminal
