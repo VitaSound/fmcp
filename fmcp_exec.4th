@@ -9,17 +9,31 @@ variable fmcp.eval-ec
 2variable fmcp.eval-root
 2variable fmcp.eval-source-in
 variable fmcp.eval-timeout
+variable fmcp.cap-seq
+2variable fmcp.cap-out-path
+
+: fmcp.capture-path! ( -- )
+    s" /tmp/fmcp-cap-"
+    getpid fmcp.u>dec fmcp.str-concat
+    s" -" fmcp.str-concat
+    fmcp.cap-seq @ 1+ dup fmcp.cap-seq !
+    fmcp.u>dec fmcp.str-concat
+    s" .out" fmcp.str-concat
+    fmcp.cap-out-path 2! ;
 
 : fmcp.run-capture ( root-a root-u inner-a inner-u -- out-a out-u ec )
     fmcp.cap-inner 2!
     fmcp.cap-root 2!
+    fmcp.capture-path!
     fmcp.cap-root 2@ fmcp.validate-path 2drop
     s" cd " fmcp.cap-root 2@ fmcp.str-concat
     s"  && " fmcp.str-concat
     fmcp.cap-inner 2@ fmcp.str-concat
-    s"  > /tmp/fmcp-capture.out 2>&1" fmcp.str-concat
+    s"  > " fmcp.str-concat
+    fmcp.cap-out-path 2@ fmcp.str-concat
+    s"  2>&1" fmcp.str-concat
     system
-    s" /tmp/fmcp-capture.out" fmcp.slurp-file
+    fmcp.cap-out-path 2@ fmcp.slurp-file
     fmcp.exit-status ;
 
 : fmcp.run-capture-timed ( root-a root-u inner-a inner-u timeout-u -- out-a out-u ec )
@@ -29,10 +43,13 @@ variable fmcp.eval-timeout
     fmcp.eval-timeout @ 0= IF
         fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.run-capture EXIT
     THEN
-    s" timeout " fmcp.eval-timeout @ fmcp.u>dec fmcp.str-concat
+    s" ( timeout "
+    fmcp.eval-timeout @ fmcp.u>dec fmcp.str-concat
     s"  " fmcp.str-concat
     fmcp.cap-inner 2@ fmcp.str-concat
-    fmcp.cap-root 2@ 2swap fmcp.run-capture ;
+    s" )" fmcp.str-concat
+    fmcp.cap-inner 2!
+    fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.run-capture ;
 
 : fmcp.gforth-eval-cmd ( -- cmd-a cmd-u )
     s" gforth --no-rc /tmp/fmcp-eval.4th" ;

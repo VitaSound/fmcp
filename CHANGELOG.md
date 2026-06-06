@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`fmcp.run-capture`** — capture temp paths include process id (`/tmp/fmcp-cap-<pid>-<n>.out`);
+  nested `gforth_eval` during `fmix_test` no longer truncates the parent capture file
+  (was `Terminated.` / null bytes / truncated test listing in MCP output).
+
 ## [0.1.2] - 2026-06-06
 
 ### Added
