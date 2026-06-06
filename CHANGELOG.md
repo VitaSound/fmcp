@@ -7,6 +7,20 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-06-06
+
+### Added
+
+- **`gforth_eval` MCP tool** — evaluate a Gforth snippet in `project_root` with server-side
+  `timeout` (default 10s, max 300s); exit 124 → `[fmcp] timed out after Ns` and `isError: true`.
+- **`fmcp.exit-status`** — normalize Gforth `$?` after `system` (wait status >> 8).
+- Unit tests: `fmcp_run_capture_test.4th`, `fmcp_json_args_test.4th`; smoke covers `gforth_eval`.
+
+### Changed
+
+- **`fmcp.run-capture`** — use plain `system` (non-zero exit preserved); avoid Gforth output
+  locals that leaked stack cells to callers.
+
 ## [0.1.1] - 2026-06-06
 
 ### Fixed

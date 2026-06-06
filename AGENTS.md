@@ -24,6 +24,46 @@ See also [fmix/AGENTS.md](../fmix/AGENTS.md) for ecosystem workflow.
 
 Legacy/alternate entry points (not used by `bin/fmcp serve`): `fmcp_serve_line.4th` (`FMCP_LINE` env), `fmcp_line.4th`.
 
-## MCP
+## MCP (for AI agents)
 
-Prefer `fmcp serve` tools over inventing shell commands. Typical order: `fmix_packages_get` → `flint_lint` → `fmix_test` → optional `fcov_*`.
+Cursor server name in `mcp.json`: **`vitasound-forth`**. The agent sees **tool names** below (not `fmcp` / not shell).
+
+### When to use MCP
+
+Use MCP tools from **vitasound-forth** when working on any VitaSound Forth checkout (fmix, flint, fcov, fmcp, fjson, …). **Do not** invent equivalent shell commands (`fmix test`, `flint lint`, …) if the MCP tool exists.
+
+`project_root` is always the **absolute path** to the package being worked on (e.g. `/home/sea/fmix`), not `FMCP_HOME`.
+
+### Tools
+
+| MCP tool | When | Arguments |
+|----------|------|-----------|
+| `fmix_packages_get` | After clone, or when `package.4th` / deps changed | `project_root` |
+| `flint_lint` | Before commit; after editing `.4th` | `project_root` |
+| `fmix_test` | Run unit tests | `project_root`, optional `test_file` |
+| `fcov_run` | Coverage collection (when asked) | `project_root`, optional `test_command` |
+| `fcov_report` | Coverage JSON report | `project_root` |
+| `gforth_eval` | Ad-hoc Gforth snippet in `project_root` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
+
+### Typical workflow
+
+```text
+fmix_packages_get → flint_lint → fmix_test → (optional) fcov_run → fcov_report
+```
+
+Use **`gforth_eval`** for quick stack checks instead of shell `gforth`; server enforces timeout (exit 124 → `isError`).
+
+1. **`fmix_packages_get`** — vendored `forth-packages/` must exist before test/lint.
+2. **`flint_lint`** — exit 0; grep output for `[WARN]` if reviewing duplicates.
+3. **`fmix_test`** — default full suite; pass `test_file` only for a single test.
+4. **`fcov_*`** — only when the user asks for coverage.
+
+### Working on fmcp itself
+
+For changes in **this** repo (`fmcp`), `project_root` = `$FMCP_HOME` (fmcp checkout). Still use MCP for consistency, or `fmcp test` / `bash tests/smoke_test.sh` from shell when debugging the bridge.
+
+### If tools are missing
+
+Server not connected: Cursor **Settings → MCP** → `vitasound-forth` must be green → **Refresh**. See [README.md](README.md) for `mcp.json` paths (`FMCP_HOME`, `FMIX_HOME`, `PATH` in `env`).
+
+Optional diagnostics in `tests/`: `test_mcp_smoke.sh`, `mcp_probe_run.sh` (protocol log → `/tmp/mcp-probe.log`).

@@ -26,6 +26,10 @@ variable fmcp.schema-node
     s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"}},\"required\":[\"project_root\"]}"
     fjson.parse ;
 
+: fmcp.schema-gforth-eval-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"source\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\",\"source\"]}"
+    fjson.parse ;
+
 : fmcp.init-schema ( -- )
     fmcp.schema-project-root-parse fmcp.schema-node ! ;
 
@@ -68,6 +72,13 @@ variable fmcp.schema-node
     s" name" fmcp.b-name 2@ fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" description" fmcp.b-desc 2@ fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" inputSchema" fmcp.schema-project-root-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
+: fmcp.build-gforth-eval-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" gforth_eval" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Evaluate Gforth snippet in project_root (timeout default 10s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-gforth-eval-parse fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 
 : fmcp.build-rpc ( -- node )
@@ -136,7 +147,7 @@ variable fmcp.schema-node
     s" capabilities" fmcp.b-wrap @ fmcp.obj-add-val
     ulist-new fmcp.b-entry !
     s" name" s" fmcp" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" version" s" 0.1.1" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" version" s" 0.1.2" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj fmcp.b-val !
     s" serverInfo" fmcp.b-wrap @ fmcp.obj-add-val
     s" protocolVersion" s" 2025-11-25" fjson.node-str fmcp.b-wrap @ fmcp.obj-add-key
@@ -149,6 +160,7 @@ variable fmcp.schema-node
     s" flint_lint" s" Run flint lint" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     s" fcov_run" s" Run fcov run" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     s" fcov_report" s" fcov report json" fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    fmcp.build-gforth-eval-entry fmcp.b-lst @ ulist-add
     ulist-new fmcp.b-wrap !
     fmcp.b-lst @ fmcp.build-arr fmcp.b-val !
     s" tools" fmcp.b-wrap @ fmcp.obj-add-val

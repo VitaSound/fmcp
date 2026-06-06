@@ -121,6 +121,66 @@ Same JSON as **Remote WSL** above (`~/.cursor/mcp.json` with Linux paths).
 
 Use an **absolute** path for `command`. Cursor does not load your shell `~/.bashrc`, so `"command": "fmcp"` fails unless `fmcp` happens to be on the default PATH.
 
+## Using MCP in the agent (Cursor)
+
+After `mcp.json` is set up, enable the server and teach the agent to call it.
+
+### 1. Enable the server
+
+1. **Settings → MCP** — turn on **`vitasound-forth`**.
+2. Status must be **connected** (green). If not: **Refresh**, then check paths in `mcp.json` and [doc/API.md](doc/API.md).
+3. In chat you can ask: *«List MCP tools from vitasound-forth»* — expect `fmix_test`, `flint_lint`, `fmix_packages_get`, `fcov_run`, `fcov_report`, `gforth_eval`.
+
+### 2. Tell the agent to use MCP (not shell)
+
+Agents do not auto-prefer MCP. Add guidance in the **workspace you code in** (fmix, flint, fcov, …):
+
+**Option A — `AGENTS.md` in that repo** (copy or link the MCP section from [AGENTS.md](AGENTS.md)):
+
+```markdown
+## VitaSound tooling
+
+Use MCP server **vitasound-forth** for packages, lint, tests, coverage.
+Do not run `fmix test` / `flint` / `fcov` via terminal when MCP tools exist.
+
+Order: `fmix_packages_get` → `flint_lint` → `fmix_test` → optional `fcov_*`.
+`project_root` = absolute path to this repo (e.g. `/home/sea/fmix`).
+```
+
+**Option B — Cursor rule** (`.cursor/rules/vitasound-forth.mdc` in the target repo):
+
+```markdown
+---
+description: VitaSound Forth — use fmcp MCP tools
+alwaysApply: true
+---
+
+Prefer MCP **vitasound-forth**: `fmix_packages_get`, `flint_lint`, `fmix_test`, `fcov_run`, `fcov_report`.
+Pass `project_root` as the absolute package path. No ad-hoc shell for the same operations.
+```
+
+**Option C — one-off in chat:**
+
+> Use vitasound-forth MCP for tests and lint; `project_root` = `/home/sea/fmix`.
+
+### 3. What the agent should run
+
+| Task | MCP tool | Not this |
+|------|----------|----------|
+| Fetch deps | `fmix_packages_get` | `fmix packages.get` in shell |
+| Lint | `flint_lint` | `flint lint` in shell |
+| Tests | `fmix_test` | `fmix test` in shell |
+| Coverage | `fcov_run`, `fcov_report` | manual `fcov` CLI |
+
+Full tool params and agent workflow: [AGENTS.md](AGENTS.md).
+
+### 4. Verify without Cursor
+
+```bash
+bash tests/smoke_test.sh          # fmcp protocol
+bash tests/test_mcp_smoke.sh      # optional Python reference MCP
+```
+
 ## Forth style
 
 Follow [frules](https://github.com/VitaSound/frules) (Gforth dialect). See `AGENTS.md`.
@@ -129,7 +189,8 @@ Follow [frules](https://github.com/VitaSound/frules) (Gforth dialect). See `AGEN
 
 - [x] `initialize`, `tools/list`, `tools/call` over stdio (via [fjson](https://github.com/VitaSound/fjson) read-lite)
 - [x] `fmcp_exec.4th` — `fmix_test`, `fmix_packages_get`, `flint_lint`, `fcov_run`, `fcov_report`
-- [ ] Cursor skill / full E2E with real `FMIX_HOME` paths in `mcp.json`
+- [x] Cursor agent guidance — [AGENTS.md](AGENTS.md), README «Using MCP in the agent»
+- [ ] Full E2E with real `FMIX_HOME` tool execution in CI
 
 ## Documentation
 

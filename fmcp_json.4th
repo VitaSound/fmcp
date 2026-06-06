@@ -94,6 +94,34 @@ variable fmcp.b-id-node
     THEN
     fmcp.arg-key 2@ rot fmcp.object-get-str ;
 
+: fmcp.arg-node ( keya keyu -- node|0 )
+    fmcp.arg-key 2!
+    s" params" fmcp.req-get dup 0= IF
+        drop 0 EXIT
+    THEN
+    s" arguments" rot fjson.object-get dup 0= IF
+        drop 0 EXIT
+    THEN
+    fmcp.arg-key 2@ rot fjson.object-get ;
+
+: fmcp.arg-number ( keya keyu -- n | 0 )
+    fmcp.arg-node dup 0= IF
+        drop 0 EXIT
+    THEN
+    dup fjson.node-type FJSON_J-NUM = IF
+        fjson.node-num@ EXIT
+    THEN
+    fjson.node-str@ dup 0= IF
+        2drop 0 EXIT
+    THEN
+    >number 2drop drop ;
+
+: fmcp.arg-number-default ( keya keyu default -- n )
+    >r fmcp.arg-number dup IF
+        r> drop EXIT
+    THEN
+    drop r> ;
+
 [IFUNDEF] fmcp.slurp-file
 
 variable fmcp.slurp-fid

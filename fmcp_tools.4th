@@ -34,4 +34,11 @@ require fmcp_exec.4th
         s" project_root" fmcp.arg-string
         fmcp.fcov-report-json fmcp.tool-result-node EXIT
     THEN
+    2dup s" gforth_eval" compare 0= IF
+        2drop
+        s" project_root" fmcp.arg-string
+        s" source" fmcp.arg-string
+        s" timeout_seconds" 10 fmcp.arg-number-default
+        fmcp.gforth-eval fmcp.tool-result-node EXIT
+    THEN
     2drop s" unknown tool" fmcp.tool-error-node ;

@@ -47,14 +47,38 @@
         1 (bye)
     THEN ;
 
+: fmcp.exit-status ( -- ec )
+    $? 8 rshift ;
+
 : fmcp.system-checked ( addr u -- )
     system
-    $? 0<> IF
+    fmcp.exit-status 0<> IF
         cr s" [ERROR] Command failed" type cr
         1 (bye)
     THEN ;
 
+: fmcp.u>dec ( u -- a u )
+    base @ >r decimal
+    0 <# #s #> r> base ! ;
+
+: fmcp.clamp-u { val lo hi -- u }
+    val lo < IF lo EXIT THEN
+    val hi > IF hi EXIT THEN
+    val ;
+
+: fmcp.prepend-text { pre-a pre-u text-a text-u -- a u }
+    pre-a pre-u text-a text-u fmcp.str-concat ;
+
 [THEN]
+
+2variable fmcp.write-text
+variable fmcp.write-fid
+
+: fmcp.write-text-file ( path-a path-u text-a text-u -- )
+    fmcp.write-text 2!
+    w/o create-file throw fmcp.write-fid !
+    fmcp.write-text 2@ fmcp.write-fid @ write-file throw
+    fmcp.write-fid @ close-file throw ;
 
 : fmcp.tool-home { env-a env-u def-a def-u -- a u }
     env-a env-u getenv 2dup nip IF

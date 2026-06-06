@@ -12,7 +12,11 @@ echo "$init_out" | grep -q '"id":1'
 echo "$init_out" | grep -vq '"id":"1"'
 
 printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
-  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q fmix_test
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q gforth_eval
+
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"gforth_eval","arguments":{"project_root":"'"$FMCP_HOME"'","source":"42 . cr"}}}' \
+  | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q '"text":"42'
 
 printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nope","arguments":{}}}' \
   | timeout 15 "$FMCP_HOME/bin/fmcp" serve | grep -q unknown

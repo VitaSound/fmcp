@@ -60,7 +60,7 @@ Environment (for tools):
 
 | Method | Handler | Response |
 |--------|---------|----------|
-| `initialize` | Fixed JSON | `protocolVersion` 2025-11-25, `serverInfo` fmcp 0.1.1 |
+| `initialize` | Fixed JSON | `protocolVersion` 2025-11-25, `serverInfo` fmcp 0.1.2 |
 | `notifications/initialized` | no-op | (no reply) |
 | `tools/list` | `fmcp.tools-list-node` | Tool schemas for all registered tools |
 | `tools/call` | `fmcp.call-tool` | Tool result or error JSON |
@@ -78,6 +78,9 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 | `flint_lint` | `fmcp.flint-lint` | `project_root` |
 | `fcov_run` | `fmcp.fcov-run` | `project_root`, optional `test_command` |
 | `fcov_report` | `fmcp.fcov-report-json` | `project_root` |
+| `gforth_eval` | `fmcp.gforth-eval` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
+
+`gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `timeout N gforth --no-rc` in `project_root`. Exit 124 → `[fmcp] timed out after Ns` prefix and `isError: true`.
 
 Unknown tool → JSON error with `"unknown tool"` in text content.
 
