@@ -7,6 +7,13 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-06-08
+
+### Fixed
+
+- **`fmcp.log-field`** — empty optional values (`test_command` omitted on `fcov_run`) no longer stack-underflow (`val-u nip` + `2drop`).
+- **`fmcp.log-tool-root-field`** — restore `pre` before `log-field` (SIGSEGV on `fcov_run` / `flint_lint` after `shell_run` in one serve session).
+
 ## [0.1.9] - 2026-06-08
 
 ### Fixed

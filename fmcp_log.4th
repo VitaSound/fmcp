@@ -71,10 +71,10 @@ create fmcp.log-nlbuf 10 c,
     fmcp.sp$ fmcp.str-concat ;
 
 : fmcp.log-field { pre-a pre-u key-a key-u val-a val-u -- a u }
-    val-a val-u nip IF
+    val-u IF
         pre-a pre-u key-a key-u val-a val-u fmcp.log-kv
     ELSE
-        2drop pre-a pre-u
+        pre-a pre-u
     THEN ;
 
 : fmcp.log-prefix ( tag-a tag-u -- a u )
@@ -107,11 +107,9 @@ create fmcp.log-nlbuf 10 c,
         2drop 0 0 fmcp.log-project-root 2!
     THEN ;
 
-: fmcp.log-tool-root-field ( pre-a pre-u -- a u )
-    2>r
+: fmcp.log-tool-root-field { pre-a pre-u -- a u }
     s" project_root" fmcp.arg-string fmcp.log-project-root-set
-    s" project_root" fmcp.log-project-root 2@ fmcp.log-field
-    2r> ;
+    pre-a pre-u s" project_root" fmcp.log-project-root 2@ fmcp.log-field ;
 
 : fmcp.log-session-start ( -- )
     fmcp.log-enabled? IF
