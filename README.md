@@ -180,6 +180,7 @@ Full tool params and agent workflow: [AGENTS.md](AGENTS.md).
 bash tests/smoke_test.sh                    # fmcp protocol
 bash tests/mcp_session_timeout_test.sh    # timeout eval + ping in one session
 bash tests/mcp_shell_run_timeout_test.sh  # shell_run sleep + ping in one session
+bash tests/mcp_fcov_session_test.sh       # fcov_run timeout + ping in one session
 bash tests/test_mcp_smoke.sh              # optional Python reference MCP
 ```
 

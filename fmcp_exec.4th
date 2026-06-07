@@ -188,31 +188,35 @@ variable fmcp.cap-seq
     home-a home-u s" /bin/" fmcp.str-concat tool-a tool-u fmcp.str-concat
     s"  " fmcp.str-concat sub-a sub-u fmcp.str-concat ;
 
-: fmcp.fmix-test { root-a root-u test-file-a test-file-u -- }
+: fmcp.fmix-test { root-a root-u test-file-a test-file-u timeout-u -- }
     fmcp.fmix-home s" fmix" s" " fmcp.bin-cmd
     s" test" fmcp.str-concat
     test-file-a test-file-u nip IF
-        s" " fmcp.str-concat test-file-a test-file-u fmcp.str-concat
+        fmcp.sp$ fmcp.str-concat test-file-a test-file-u fmcp.str-concat
     THEN
-    root-a root-u 2swap fmcp.run-capture ;
+    root-a root-u 2swap timeout-u fmcp.run-capture-bg
+    fmcp.apply-capture-prefix ;
 
-: fmcp.fmix-packages-get { root-a root-u -- }
+: fmcp.fmix-packages-get { root-a root-u timeout-u -- }
     fmcp.fmix-home s" fmix" s" " fmcp.bin-cmd
     s" packages.get" fmcp.str-concat
-    root-a root-u 2swap fmcp.run-capture ;
+    root-a root-u 2swap timeout-u fmcp.run-capture-bg
+    fmcp.apply-capture-prefix ;
 
-: fmcp.flint-lint { root-a root-u -- }
+: fmcp.flint-lint { root-a root-u timeout-u -- }
     fmcp.flint-home s" flint" s" " fmcp.bin-cmd
     s" lint ." fmcp.str-concat
-    root-a root-u 2swap fmcp.run-capture ;
+    root-a root-u 2swap timeout-u fmcp.run-capture-bg
+    fmcp.apply-capture-prefix ;
 
-: fmcp.fcov-run { root-a root-u test-cmd-a test-cmd-u -- }
+: fmcp.fcov-run { root-a root-u test-cmd-a test-cmd-u timeout-u -- }
     fmcp.fcov-home s" fcov" s" " fmcp.bin-cmd
     s" run" fmcp.str-concat
     test-cmd-a test-cmd-u nip IF
-        s" " fmcp.str-concat test-cmd-a test-cmd-u fmcp.str-concat
+        fmcp.sp$ fmcp.str-concat test-cmd-a test-cmd-u fmcp.str-concat
     THEN
-    root-a root-u 2swap fmcp.run-capture ;
+    root-a root-u 2swap timeout-u fmcp.run-capture-bg
+    fmcp.apply-capture-prefix ;
 
 : fmcp.fcov-report-json { root-a root-u -- }
     fmcp.fcov-home s" fcov" s" " fmcp.bin-cmd

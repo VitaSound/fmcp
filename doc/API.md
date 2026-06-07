@@ -73,10 +73,10 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 
 | Tool name | Forth | Required JSON params |
 |-----------|-------|----------------------|
-| `fmix_test` | `fmcp.fmix-test` | `project_root`, optional `test_file` |
-| `fmix_packages_get` | `fmcp.fmix-packages-get` | `project_root` |
-| `flint_lint` | `fmcp.flint-lint` | `project_root` |
-| `fcov_run` | `fmcp.fcov-run` | `project_root`, optional `test_command` |
+| `fmix_test` | `fmcp.fmix-test` | `project_root`, optional `test_file`, optional `timeout_seconds` (default 120, max 300) |
+| `fmix_packages_get` | `fmcp.fmix-packages-get` | `project_root`, optional `timeout_seconds` (default 30, max 300) |
+| `flint_lint` | `fmcp.flint-lint` | `project_root`, optional `timeout_seconds` (default 60, max 300) |
+| `fcov_run` | `fmcp.fcov-run` | `project_root`, optional `test_command`, optional `timeout_seconds` (default 300, max 300) |
 | `fcov_report` | `fmcp.fcov-report-json` | `project_root` |
 | `gforth_eval` | `fmcp.gforth-eval` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
 | `mcp_ping` | `fmcp.mcp-ping-text` | _(none)_ |
@@ -85,6 +85,8 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 `gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `gforth /tmp/fmcp-eval.4th` in `project_root` via background capture (`fmcp.run-capture-bg`). Exit 124 → `fmcp timed out after N seconds` prefix and `isError: true`.
 
 `shell_run` runs an arbitrary shell command in `project_root` with the same timeout/capture path as `gforth_eval`. The command is written verbatim to a temporary `/tmp/fmcp-cap-*.cmd` script (no user input embedded in `sh -c` quoting).
+
+`fcov_run`, `fmix_test`, `flint_lint`, and `fmix_packages_get` use the same background capture path (`fmcp.run-capture-bg`): the serve loop polls the subprocess PID instead of blocking in `system`, so a timeout yields JSON `exit_code=124` and the MCP session stays alive for the next request.
 
 `mcp_ping` returns `fmcp ok version … serve_pid …` for session health checks.
 

@@ -30,12 +30,16 @@ variable fmcp.schema-node
     s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"source\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\",\"source\"]}"
     fjson.parse ;
 
+: fmcp.schema-project-root-timeout-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\"]}"
+    fjson.parse ;
+
 : fmcp.schema-fmix-test-parse ( -- node )
-    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_file\":{\"type\":\"string\"}},\"required\":[\"project_root\"]}"
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_file\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\"]}"
     fjson.parse ;
 
 : fmcp.schema-fcov-run-parse ( -- node )
-    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_command\":{\"type\":\"string\"}},\"required\":[\"project_root\"]}"
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_command\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\"]}"
     fjson.parse ;
 
 : fmcp.schema-shell-run-parse ( -- node )
@@ -187,14 +191,14 @@ variable fmcp.schema-node
 : fmcp.build-fmix-test-entry ( -- node )
     ulist-new fmcp.b-entry !
     s" name" s" fmix_test" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" description" s" Run fmix test" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fmix test (timeout default 120s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" inputSchema" fmcp.schema-fmix-test-parse fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 
 : fmcp.build-fcov-run-entry ( -- node )
     ulist-new fmcp.b-entry !
     s" name" s" fcov_run" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" description" s" Run fcov run, optional test_command" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fcov run, optional test_command (timeout default 300s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" inputSchema" fmcp.schema-fcov-run-parse fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 
@@ -203,8 +207,8 @@ variable fmcp.schema-node
     fmcp.build-mcp-ping-entry fmcp.b-lst @ ulist-add
     fmcp.build-shell-run-entry fmcp.b-lst @ ulist-add
     fmcp.build-fmix-test-entry fmcp.b-lst @ ulist-add
-    s" fmix_packages_get" s" Run fmix packages.get" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" flint_lint" s" Run flint lint" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    s" fmix_packages_get" s" Run fmix packages.get (timeout default 30s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    s" flint_lint" s" Run flint lint (timeout default 60s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-fcov-run-entry fmcp.b-lst @ ulist-add
     s" fcov_report" s" fcov report json" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-gforth-eval-entry fmcp.b-lst @ ulist-add

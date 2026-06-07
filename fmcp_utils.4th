@@ -13,6 +13,10 @@
     a2 mem u1 + u2 move
     mem u1 u2 + ;
 
+\ Gforth s" " is length 0; s"  " is one ASCII space.
+: fmcp.sp$ ( -- a u )
+    s"  " ;
+
 : fmcp.str-free ( a u -- )
     nip dup IF free throw ELSE drop THEN ;
 

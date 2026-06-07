@@ -41,7 +41,7 @@ Use MCP tools from **vitasound-forth** when working on any VitaSound Forth check
 | `fmix_packages_get` | After clone, or when `package.4th` / deps changed | `project_root` |
 | `flint_lint` | Before commit; after editing `.4th` | `project_root` |
 | `fmix_test` | Run unit tests | `project_root`, optional `test_file` |
-| `fcov_run` | Coverage collection (when asked) | `project_root`, optional `test_command` |
+| `fcov_run` | Coverage collection (when asked) | `project_root`, optional `test_command`, optional `timeout_seconds` (default 300) |
 | `fcov_report` | Coverage JSON report | `project_root` |
 | `gforth_eval` | Ad-hoc Gforth snippet in `project_root` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
 | `mcp_ping` | Health check (version, serve pid) | _(none)_ |

@@ -52,22 +52,26 @@ require fmcp_exec.4th
         2drop
         s" project_root" fmcp.arg-string
         s" test_file" fmcp.arg-string
+        s" timeout_seconds" 120 fmcp.arg-number-default
         fmcp.fmix-test fmcp.tool-result-final EXIT
     THEN
     2dup s" fmix_packages_get" compare 0= IF
         2drop
         s" project_root" fmcp.arg-string
+        s" timeout_seconds" 30 fmcp.arg-number-default
         fmcp.fmix-packages-get fmcp.tool-result-final EXIT
     THEN
     2dup s" flint_lint" compare 0= IF
         2drop
         s" project_root" fmcp.arg-string
+        s" timeout_seconds" 60 fmcp.arg-number-default
         fmcp.flint-lint fmcp.tool-result-final EXIT
     THEN
     2dup s" fcov_run" compare 0= IF
         2drop
         s" project_root" fmcp.arg-string
         s" test_command" fmcp.arg-string
+        s" timeout_seconds" 300 fmcp.arg-number-default
         fmcp.fcov-run fmcp.tool-result-final EXIT
     THEN
     2dup s" fcov_report" compare 0= IF
