@@ -7,6 +7,14 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-06-08
+
+### Fixed
+
+- **`fmcp.line-parse`** — always heap-copy the request line before `fjson.parse` (stable pointers for logging); fix `allocate`/`linea!` stack leaks that broke parsing and tests.
+- **`fmcp.log-tool-start`** — Gforth locals must be on the definition line (`log-field`, `log-kv`, …); fix `log-field` after `log-trunc-field` (`2>r` / `2r>`); use `fmcp.log-tool-name` instead of stack args.
+- **Second `tools/call` with `FMCP_LOG`** — `shell_run` / `fcov_run` / … no longer SIGSEGV or stack-underflow after `mcp_ping` in the same serve session.
+
 ## [0.1.8] - 2026-06-08
 
 ### Fixed

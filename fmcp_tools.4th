@@ -43,7 +43,7 @@ require fmcp_log.4th
     fmcp.log-tool-name 2@ nip 0= IF
         s" missing tool name" fmcp.tool-error-node EXIT
     THEN
-    fmcp.log-tool-name 2@ fmcp.log-tool-start
+    fmcp.log-tool-start
     fmcp.log-tool-name 2@ s" mcp_ping" compare 0= IF
         fmcp.mcp-ping-text 0 fmcp.tool-result-final EXIT
     THEN

@@ -9,6 +9,9 @@
 
 variable fmcp.linea
 variable fmcp.lineu
+variable fmcp.line-heap
+variable fmcp.parse-sa
+variable fmcp.parse-su
 variable fmcp.parsed-root
 variable fmcp.b-id-node
 2variable fmcp.m-method
@@ -16,13 +19,21 @@ variable fmcp.b-id-node
 
 : fmcp.line-free ( -- )
     fmcp.parsed-root @ ?dup IF fjson.node-free THEN
-    0 fmcp.parsed-root ! ;
+    0 fmcp.parsed-root !
+    fmcp.line-heap @ ?dup IF free throw THEN
+    0 fmcp.line-heap !
+    0 fmcp.lineu ! 0 fmcp.linea ! ;
 
 : fmcp.line-parse ( linea lineu -- ok )
-    fmcp.parsed-root @ ?dup IF fjson.node-free THEN
-    0 fmcp.parsed-root !
-    fjson.parse fmcp.parsed-root !
-    fmcp.parsed-root @ 0<> ;
+    fmcp.parse-su !
+    fmcp.parse-sa !
+    fmcp.line-free
+    fmcp.parse-su @ allocate throw fmcp.line-heap !
+    fmcp.parse-sa @ fmcp.line-heap @ fmcp.parse-su @ move
+    fmcp.line-heap @ fmcp.linea !
+    fmcp.parse-su @ fmcp.lineu !
+    fmcp.linea @ fmcp.lineu @ fjson.parse fmcp.parsed-root !
+    fmcp.parsed-root @ 0= 0= ;
 
 : fmcp.parsed-root@ ( -- node )
     fmcp.parsed-root @ ;

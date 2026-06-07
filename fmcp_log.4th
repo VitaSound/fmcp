@@ -24,8 +24,7 @@ create fmcp.log-nlbuf 10 c,
     2drop
     fmcp.home-path s" /.fmcp/serve.log" fmcp.str-concat ;
 
-: fmcp.log-dirname ( path-a path-u -- dir-a dir-u )
-    { path-a path-u | i }
+: fmcp.log-dirname { path-a path-u | i -- dir-a dir-u }
     path-u 0= IF nip s" ." EXIT THEN
     path-u TO i
     begin
@@ -47,8 +46,7 @@ create fmcp.log-nlbuf 10 c,
         2drop
     THEN ;
 
-: fmcp.log-append-path ( path-a path-u line-a line-u -- )
-    { path-a path-u line-a line-u }
+: fmcp.log-append-path { path-a path-u line-a line-u -- }
     fmcp.log-enabled? 0= IF EXIT THEN
     path-a path-u fmcp.log-dirname fmcp.log-ensure-dir
     s" /tmp/fmcp-line-" getpid fmcp.u>dec fmcp.str-concat
@@ -66,15 +64,13 @@ create fmcp.log-nlbuf 10 c,
     fmcp.log-nlbuf 1 fmcp.str-concat
     fmcp.log-global-path 2swap fmcp.log-append-path ;
 
-: fmcp.log-kv ( pre-a pre-u key-a key-u val-a val-u -- a u )
-    { pre-a pre-u key-a key-u val-a val-u }
+: fmcp.log-kv { pre-a pre-u key-a key-u val-a val-u -- a u }
     pre-a pre-u key-a key-u fmcp.str-concat
     s" =" fmcp.str-concat
     val-a val-u fmcp.str-concat
     fmcp.sp$ fmcp.str-concat ;
 
-: fmcp.log-field ( pre-a pre-u key-a key-u val-a val-u -- a u )
-    { pre-a pre-u key-a key-u val-a val-u }
+: fmcp.log-field { pre-a pre-u key-a key-u val-a val-u -- a u }
     val-a val-u nip IF
         pre-a pre-u key-a key-u val-a val-u fmcp.log-kv
     ELSE
@@ -92,9 +88,8 @@ create fmcp.log-nlbuf 10 c,
     2r> fmcp.str-concat
     fmcp.sp$ fmcp.str-concat ;
 
-: fmcp.log-trunc-field ( a u max-u -- a u )
-    { a u max-u }
-    u max-u <= IF a u EXIT THEN
+: fmcp.log-trunc-field { a u max-u -- a u }
+    u max-u <= IF a u fmcp.str-dup EXIT THEN
     a max-u fmcp.str-dup
     s" ..." fmcp.str-concat ;
 
@@ -107,7 +102,7 @@ create fmcp.log-nlbuf 10 c,
 
 : fmcp.log-project-root-set ( root-a root-u -- )
     2dup nip IF
-        fmcp.log-project-root 2!
+        fmcp.str-dup fmcp.log-project-root 2!
     ELSE
         2drop 0 0 fmcp.log-project-root 2!
     THEN ;
@@ -167,35 +162,35 @@ create fmcp.log-nlbuf 10 c,
         fmcp.log-write-line
     THEN ;
 
-: fmcp.log-tool-start ( tool-a tool-u -- )
-    { tool-a tool-u }
-    fmcp.log-enabled? IF
+: fmcp.log-tool-start ( -- )
+    fmcp.log-tool-name 2@ nip 0= IF EXIT THEN
+    fmcp.log-enabled? 0= IF EXIT THEN
     0 0 fmcp.log-project-root 2!
     s" TOOL_START" fmcp.log-prefix
     s" id" fmcp.mcp-id-str fmcp.log-field
-    s" tool" tool-a tool-u fmcp.log-field
-    tool-a tool-u s" shell_run" compare 0= IF
+    s" tool" fmcp.log-tool-name 2@ fmcp.log-field
+    fmcp.log-tool-name 2@ s" shell_run" compare 0= IF
         s" command" fmcp.arg-string 200 fmcp.log-trunc-field
-        fmcp.log-field
+        2>r s" command" 2r> fmcp.log-field
         s" project_root" fmcp.arg-string fmcp.log-project-root-set
         s" project_root" fmcp.log-project-root 2@ fmcp.log-field
     ELSE
-        tool-a tool-u s" gforth_eval" compare 0= IF
+        fmcp.log-tool-name 2@ s" gforth_eval" compare 0= IF
             s" source" fmcp.arg-string 80 fmcp.log-trunc-field
-            fmcp.log-field
+            2>r s" source" 2r> fmcp.log-field
             fmcp.log-tool-root-field
         ELSE
-            tool-a tool-u s" fcov_run" compare 0= IF
+            fmcp.log-tool-name 2@ s" fcov_run" compare 0= IF
                 s" test_command" fmcp.arg-string 120 fmcp.log-trunc-field
-                fmcp.log-field
+                2>r s" test_command" 2r> fmcp.log-field
                 fmcp.log-tool-root-field
             ELSE
-                tool-a tool-u s" fmix_test" compare 0= IF
+                fmcp.log-tool-name 2@ s" fmix_test" compare 0= IF
                     s" test_file" fmcp.arg-string
                     fmcp.log-field
                     fmcp.log-tool-root-field
                 ELSE
-                    tool-a tool-u s" mcp_ping" compare 0<> IF
+                    fmcp.log-tool-name 2@ s" mcp_ping" compare 0<> IF
                         fmcp.log-tool-root-field
                     THEN
                 THEN
@@ -207,15 +202,13 @@ create fmcp.log-nlbuf 10 c,
     fmcp.log-write-line
     fmcp.log-project-root 2@ nip IF
         s" TOOL_START id=" fmcp.mcp-id-str fmcp.str-concat
-        s" tool=" fmcp.str-concat tool-a tool-u fmcp.str-concat
+        s" tool=" fmcp.str-concat fmcp.log-tool-name 2@ fmcp.str-concat
         s" project_root=" fmcp.str-concat
         fmcp.log-project-root 2@ fmcp.str-concat
         fmcp.log-project-append
-    THEN
     THEN ;
 
-: fmcp.log-tool-end ( text-a text-u elapsed-ms trunc-flag ec -- text-a text-u ec )
-    { text-a text-u elapsed-ms trunc-flag ec }
+: fmcp.log-tool-end { text-a text-u elapsed-ms trunc-flag ec -- text-a text-u ec }
     fmcp.log-tool-name 2@ nip IF
     fmcp.log-enabled? IF
     s" TOOL_END" fmcp.log-prefix
