@@ -214,7 +214,7 @@ create fmcp.log-nlbuf 10 c,
     THEN
     THEN ;
 
-: fmcp.log-tool-end ( text-a text-u elapsed-ms trunc-flag ec -- )
+: fmcp.log-tool-end ( text-a text-u elapsed-ms trunc-flag ec -- text-a text-u ec )
     { text-a text-u elapsed-ms trunc-flag ec }
     fmcp.log-tool-name 2@ nip IF
     fmcp.log-enabled? IF
@@ -223,7 +223,7 @@ create fmcp.log-nlbuf 10 c,
     s" tool" fmcp.log-tool-name 2@ fmcp.log-field
     s" elapsed_ms" elapsed-ms fmcp.u>dec fmcp.log-field
     s" exit_code" ec fmcp.u>dec fmcp.log-field
-    s" out_bytes" text-a text-u fmcp.u>dec fmcp.log-field
+    s" out_bytes" text-u fmcp.u>dec fmcp.log-field
     s" capture_truncated" trunc-flag fmcp.u>dec fmcp.log-field
     fmcp.log-write-line
     fmcp.log-project-root 2@ nip IF
@@ -233,4 +233,5 @@ create fmcp.log-nlbuf 10 c,
         fmcp.log-project-append
     THEN
     THEN
-    THEN ;
+    THEN
+    text-a text-u ec ;

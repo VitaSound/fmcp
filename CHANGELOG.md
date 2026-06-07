@@ -7,6 +7,13 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-06-08
+
+### Fixed
+
+- **`fmcp.log-tool-end`** — restore `text/u/ec` on stack for `tool-result-final` (was SIGSEGV / `Connection closed` on every `tools/call` including `mcp_ping`).
+- **`TOOL_END out_bytes` field** — drop stray `text-a` before `fmcp.u>dec` (stack corruption / OOM when `FMCP_LOG` enabled).
+
 ## [0.1.7] - 2026-06-07
 
 ### Fixed
