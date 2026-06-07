@@ -198,7 +198,7 @@ variable fmcp.schema-node
 : fmcp.build-fcov-run-entry ( -- node )
     ulist-new fmcp.b-entry !
     s" name" s" fcov_run" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
-    s" description" s" Run fcov run, optional test_command (timeout default 300s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fcov run, optional test_command (default: bin/fmcp test --shared when bin/fmcp exists, else fmix test; timeout default 300s, max 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
     s" inputSchema" fmcp.schema-fcov-run-parse fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 

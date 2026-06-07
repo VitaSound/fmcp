@@ -91,6 +91,8 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 
 `fcov_run`, `fmix_test`, `flint_lint`, and `fmix_packages_get` use the same background capture path (`fmcp.run-capture-bg`): the serve loop polls the subprocess PID instead of blocking in `system`, so a timeout yields JSON `exit_code=124` and the MCP session stays alive for the next request.
 
+When `test_command` is omitted on `fcov_run`, fmcp passes an explicit default to `fcov run` (not fcov's bare `fmix test`): `bin/fmcp test --shared` if `bin/fmcp` exists in `project_root`, otherwise `fmix test`. Without this, fmcp repos report **0%** coverage because `fmix` is not the fmcp test runner.
+
 `mcp_ping` returns `fmcp ok version … serve_pid …` for session health checks.
 
 All tool results prepend a metadata line: `[fmcp] elapsed_ms=…  exit_code=…` (newline before tool output). Output is truncated at `FMCP_MAX_OUTPUT` (default 262144 bytes). Timeout (exit 124) adds `fmcp timed out after N seconds` to the body. Exit 125 means the subprocess died without writing an exit-code file (fail-fast poll, not a full timeout wait).

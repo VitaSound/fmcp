@@ -261,11 +261,28 @@ git tag -l 2>/dev/null | sed 's/^v//' | grep -E '^[0-9]' | sort -V
     root-a root-u 2swap timeout-u fmcp.run-capture-bg
     fmcp.apply-capture-prefix ;
 
+: fmcp.bin-exists? { root-a root-u tool-a tool-u -- f }
+    root-a root-u s" bin" fmcp.fs-join
+    tool-a tool-u fmcp.fs-join
+    file-status nip 0= ;
+
+: fmcp.fcov-default-cmd { root-a root-u -- cmd-a cmd-u }
+    root-a root-u s" fmcp" fmcp.bin-exists? IF
+        s" bin/fmcp test --shared" EXIT
+    THEN
+    root-a root-u s" fmix" fmcp.bin-exists? IF
+        s" fmix test" EXIT
+    THEN
+    s" fmix test" ;
+
 : fmcp.fcov-run { root-a root-u test-cmd-a test-cmd-u timeout-u -- }
     fmcp.fcov-home s" fcov" s" " fmcp.bin-cmd
     s" run" fmcp.str-concat
     test-cmd-a test-cmd-u nip IF
         fmcp.sp$ fmcp.str-concat test-cmd-a test-cmd-u fmcp.str-concat
+    ELSE
+        fmcp.sp$ fmcp.str-concat
+        root-a root-u fmcp.fcov-default-cmd fmcp.str-concat
     THEN
     root-a root-u 2swap timeout-u fmcp.run-capture-bg
     fmcp.apply-capture-prefix ;
