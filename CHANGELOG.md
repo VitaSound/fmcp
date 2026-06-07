@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-06-07
+
+### Fixed
+
+- **`fmcp.mcp-id-str`** — stray literal `1` after `s" 0"` corrupted the stack when logging requests without `id` (e.g. `notifications/initialized`); `fmcp serve` died after `initialize` and Cursor showed **No tools**.
+
 ## [0.1.6] - 2026-06-07
 
 ### Added

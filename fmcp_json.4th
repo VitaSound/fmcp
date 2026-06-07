@@ -70,7 +70,7 @@ variable fmcp.b-id-node
 
 : fmcp.mcp-id-str ( -- ida idu )
     s" id" fmcp.req-get dup 0= IF
-        drop s" 0" 1 EXIT
+        drop s" 0" EXIT
     THEN
     dup fjson.node-type FJSON_J-NUM = IF
         fjson.node-num@ fjson.u>str
