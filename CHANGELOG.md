@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-06-08
+
+### Added
+
+- **`fetch_tags` MCP tool** — `project_root` + optional `timeout_seconds`; runs `scripts/fetch-tags.sh` when present (feco), else `git fetch --tags` and reports semver tags / `package.4th` version.
+
 ## [0.1.10] - 2026-06-08
 
 ### Fixed

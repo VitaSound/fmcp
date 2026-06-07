@@ -206,6 +206,7 @@ variable fmcp.schema-node
     ulist-new fmcp.b-lst !
     fmcp.build-mcp-ping-entry fmcp.b-lst @ ulist-add
     fmcp.build-shell-run-entry fmcp.b-lst @ ulist-add
+    s" fetch_tags" s" Fetch project tags: scripts/fetch-tags.sh when present (feco), else git fetch --tags and list semver tags + package.4th version (timeout default 120s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-fmix-test-entry fmcp.b-lst @ ulist-add
     s" fmix_packages_get" s" Run fmix packages.get (timeout default 30s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     s" flint_lint" s" Run flint lint (timeout default 60s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add

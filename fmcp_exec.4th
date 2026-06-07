@@ -170,6 +170,38 @@ variable fmcp.capture-truncated
     fmcp.eval-ec !
     fmcp.eval-ec @ fmcp.apply-capture-prefix ;
 
+: fmcp.fetch-tags-script? { root-a root-u -- f }
+    root-a root-u s" scripts/fetch-tags.sh" fmcp.fs-join
+    file-status nip 0= ;
+
+: fmcp.fetch-tags-git-inner ( -- a u )
+    s\" git fetch --tags --quiet origin 2>/dev/null || true
+echo '--- package.4th version ---'
+grep -E 'key-value version' package.4th 2>/dev/null | head -1 || echo '(none)'
+echo '--- latest semver tag ---'
+git tag -l 2>/dev/null | sed 's/^v//' | grep -E '^[0-9]' | sort -V | tail -1 || echo '(none)'
+echo '--- git describe ---'
+git describe --tags --abbrev=0 2>/dev/null || echo '(none)'
+echo '--- all semver tags ---'
+git tag -l 2>/dev/null | sed 's/^v//' | grep -E '^[0-9]' | sort -V
+" ;
+
+: fmcp.fetch-tags-inner { root-a root-u -- inner-a inner-u }
+    root-a root-u fmcp.fetch-tags-script? IF
+        s" ./scripts/fetch-tags.sh"
+    ELSE
+        fmcp.fetch-tags-git-inner
+    THEN ;
+
+: fmcp.fetch-tags { root-a root-u timeout-u -- out-a out-u ec }
+    timeout-u fmcp.eval-timeout !
+    root-a root-u fmcp.cap-root 2!
+    root-a root-u fmcp.fetch-tags-inner fmcp.cap-inner 2!
+    fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
+    fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.eval-timeout @ fmcp.run-capture-bg
+    fmcp.eval-ec !
+    fmcp.eval-ec @ fmcp.apply-capture-prefix ;
+
 : fmcp.mcp-ping-text ( -- a u )
     s" fmcp ok version "
     fmcp-ver-data 2@ fmcp.str-concat

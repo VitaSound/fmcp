@@ -70,6 +70,9 @@ T{ s" mcp_ping" fmcp.args-empty fmcp.tools-call-line
 T{ s" shell_run" fmcp.args-shell-run fmcp.tools-call-line
     fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
 
+T{ s" fetch_tags" fmcp.root-args fmcp.tools-call-line
+    fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
+
 T{ s" fmix_test" fmcp.args-fmix-test fmcp.tools-call-line
     fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
 

@@ -81,6 +81,9 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 | `gforth_eval` | `fmcp.gforth-eval` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
 | `mcp_ping` | `fmcp.mcp-ping-text` | _(none)_ |
 | `shell_run` | `fmcp.shell-run` | `project_root`, `command`, optional `timeout_seconds` (default 10, max 300) |
+| `fetch_tags` | `fmcp.fetch-tags` | `project_root`, optional `timeout_seconds` (default 120, max 300) |
+
+`fetch_tags` runs `./scripts/fetch-tags.sh` when that file exists under `project_root` (feco ecosystem catalog → `data/tags.json`). Otherwise it runs `git fetch --tags` and prints `package.4th` version, latest semver tag, `git describe`, and all semver tags.
 
 `gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `gforth /tmp/fmcp-eval.4th` in `project_root` via background capture (`fmcp.run-capture-bg`). Exit 124 → `fmcp timed out after N seconds` prefix and `isError: true`.
 

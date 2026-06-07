@@ -53,6 +53,11 @@ require fmcp_log.4th
         s" timeout_seconds" 10 fmcp.arg-number-default
         fmcp.shell-run fmcp.tool-result-final EXIT
     THEN
+    fmcp.log-tool-name 2@ s" fetch_tags" compare 0= IF
+        s" project_root" fmcp.arg-string
+        s" timeout_seconds" 120 fmcp.arg-number-default
+        fmcp.fetch-tags fmcp.tool-result-final EXIT
+    THEN
     fmcp.log-tool-name 2@ s" fmix_test" compare 0= IF
         s" project_root" fmcp.arg-string
         s" test_file" fmcp.arg-string
