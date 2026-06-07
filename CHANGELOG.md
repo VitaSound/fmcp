@@ -7,6 +7,8 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-06-07
+
 ### Fixed
 
 - **`shell_run` quoting** — user `command` is written to `/tmp/fmcp-cap-*.cmd` and run via `sh CMDPATH`; arbitrary `'`, `|`, `;` no longer break the capture wrapper.
