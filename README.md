@@ -34,7 +34,9 @@ fmcp version
 fmcp serve    # MCP server (for Cursor)
 ```
 
-`fmcp serve` appends diagnostics to `$FMCP_HOME/.fmcp/serve.log` (override with `FMCP_LOG`; set `FMCP_LOG=0` to disable). Per-repo tool calls also append to `$project_root/.fmcp/tool.log`. See [AGENTS.md](AGENTS.md) for post-mortem use after `Connection closed`.
+Serve diagnostics logging is **off by default**. Enable with `FMCP_LOG` set to a file path, or `FMCP_LOG=1` / `on` for `$FMCP_HOME/.fmcp/serve.log`. Disable explicitly with `FMCP_LOG=0`, `off`, or `false`. Per-repo tool calls append to `$project_root/.fmcp/tool.log` only when logging is enabled. See [AGENTS.md](AGENTS.md) for post-mortem use after `Connection closed`.
+
+Temporary files under `/tmp/fmcp-*` are removed after each capture and at session end; stale files older than 60 minutes are swept at session start (`FMCP_CLEANUP_TMP=0` to disable).
 
 ## Cursor `mcp.json`
 
@@ -181,6 +183,7 @@ Full tool params and agent workflow: [AGENTS.md](AGENTS.md).
 ```bash
 bash tests/smoke_test.sh                    # fmcp protocol
 bash tests/mcp_serve_log_test.sh            # serve diagnostics log (SESSION_START, REQ, ping)
+bash tests/mcp_cleanup_test.sh              # /tmp/fmcp-* temp cleanup
 bash tests/mcp_session_timeout_test.sh    # timeout eval + ping in one session
 bash tests/mcp_shell_run_timeout_test.sh  # shell_run sleep + ping in one session
 bash tests/mcp_fcov_session_test.sh       # fcov_run timeout + ping in one session

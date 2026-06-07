@@ -7,6 +7,15 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`fmcp_cleanup.4th`** — automatic `/tmp/fmcp-*` lifecycle: sweep stale files (>60 min) at session start, delete pid-scoped capture/eval/json/line temps after each tool and at `SESSION_END`. Disable with `FMCP_CLEANUP_TMP=0`. E2E `tests/mcp_cleanup_test.sh`.
+
+### Changed
+
+- **Serve logging off by default** — set `FMCP_LOG` to a path or `1` / `on` to enable; `bin/fmcp serve` no longer auto-writes `$FMCP_HOME/.fmcp/serve.log`. Shell `SESSION_END` trap runs only when logging is enabled.
+- **Pid-scoped temp paths** — `fmcp-eval-<pid>.4th`, `fmcp-json-<pid>.out`; capture `.out`/`.pid`/`.ec`/`.cmd` removed after each run.
+
 ## [0.1.11] - 2026-06-08
 
 ### Added

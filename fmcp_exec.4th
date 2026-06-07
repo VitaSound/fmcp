@@ -17,6 +17,7 @@ variable fmcp.cap-seq
 2variable fmcp.cap-pid-path
 2variable fmcp.cap-ec-path
 2variable fmcp.cap-cmd-path
+2variable fmcp.eval-file-path
 variable fmcp.capture-truncated
 
 : fmcp.read-capture-out ( path-a path-u -- out-a out-u )
@@ -65,6 +66,12 @@ variable fmcp.capture-truncated
 : fmcp.cap-unlink ( path-a path-u -- )
     delete-file drop ;
 
+: fmcp.cap-cleanup-artifacts ( -- )
+    fmcp.cap-out-path 2@ nip IF fmcp.cap-out-path 2@ fmcp.cap-unlink THEN
+    fmcp.cap-pid-path 2@ nip IF fmcp.cap-pid-path 2@ fmcp.cap-unlink THEN
+    fmcp.cap-ec-path 2@ nip IF fmcp.cap-ec-path 2@ fmcp.cap-unlink THEN
+    fmcp.cap-cmd-path 2@ nip IF fmcp.cap-cmd-path 2@ fmcp.cap-unlink THEN ;
+
 : fmcp.touch-empty ( path-a path-u -- )
     w/o create-file throw close-file throw ;
 
@@ -83,7 +90,7 @@ variable fmcp.capture-truncated
     fmcp.exit-status >r
     fmcp.restore-terminal
     fmcp.cap-out-path 2@ fmcp.read-capture-out
-    r> ;
+    r> fmcp.cap-cleanup-artifacts ;
 
 : fmcp.run-capture-bg-start ( -- pid )
     s" TERM=dumb setsid sh -c "
@@ -116,12 +123,18 @@ variable fmcp.capture-truncated
     fmcp.write-cap-script
     fmcp.run-capture-bg-start fmcp.eval-timeout @
     fmcp.cap-ec-path 2@ fmcp.poll-wait fmcp.eval-ec !
-    fmcp.cap-cmd-path 2@ fmcp.cap-unlink
     fmcp.cap-out-path 2@ fmcp.read-capture-out
-    fmcp.eval-ec @ ;
+    fmcp.eval-ec @ fmcp.cap-cleanup-artifacts ;
+
+: fmcp.eval-file-path! ( -- )
+    s" /tmp/fmcp-eval-"
+    getpid fmcp.u>dec fmcp.str-concat
+    s" .4th" fmcp.str-concat
+    fmcp.eval-file-path 2! ;
 
 : fmcp.gforth-eval-cmd ( -- cmd-a cmd-u )
-    s" gforth /tmp/fmcp-eval.4th < /dev/null" ;
+    s" gforth " fmcp.eval-file-path 2@ fmcp.str-concat
+    s"  < /dev/null" fmcp.str-concat ;
 
 : fmcp.timeout-prefix ( timeout-u -- pre-a pre-u )
     fmcp.u>dec
@@ -152,9 +165,11 @@ variable fmcp.capture-truncated
     fmcp.eval-root 2!
     fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
     fmcp.eval-source-in 2@ s"  bye" fmcp.str-concat fmcp.eval-source 2!
-    s" /tmp/fmcp-eval.4th" fmcp.eval-source 2@ fmcp.write-text-file
+    fmcp.eval-file-path!
+    fmcp.eval-file-path 2@ fmcp.eval-source 2@ fmcp.write-text-file
     fmcp.eval-root 2@ fmcp.gforth-eval-cmd fmcp.eval-timeout @
     fmcp.run-capture-bg fmcp.eval-ec !
+    fmcp.eval-file-path 2@ fmcp.cap-unlink
     fmcp.eval-ec @ fmcp.apply-capture-prefix ;
 
 : fmcp.shell-run ( root-a root-u cmd-a cmd-u timeout-u -- out-a out-u ec )

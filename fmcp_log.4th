@@ -1,10 +1,11 @@
 \ fmcp_log.4th — diagnostics for MCP serve post-mortems.
-\ Global log: $FMCP_LOG or $FMCP_HOME/.fmcp/serve.log
-\ Per-repo log: $project_root/.fmcp/tool.log
+\ Opt-in: set FMCP_LOG to a path, or FMCP_LOG=1 / on for $FMCP_HOME/.fmcp/serve.log.
+\ Per-repo log: $project_root/.fmcp/tool.log (only when logging enabled).
 
 require fmcp_utils.4th
 require fmcp_version.4th
 require fmcp_json.4th
+require fmcp_cleanup.4th
 
 2variable fmcp.log-project-root
 2variable fmcp.log-tool-name
@@ -12,15 +13,18 @@ variable fmcp.log-seq
 create fmcp.log-nlbuf 10 c,
 
 : fmcp.log-enabled? ( -- f )
-    s" FMCP_LOG" getenv 2dup nip IF
-        2dup s" 0" compare 0= IF 2drop false EXIT THEN
-        2dup s" off" compare 0= IF 2drop false EXIT THEN
-        2drop true EXIT
-    THEN
+    s" FMCP_LOG" getenv 2dup nip 0= IF 2drop false EXIT THEN
+    2dup s" 0" compare 0= IF 2drop false EXIT THEN
+    2dup s" off" compare 0= IF 2drop false EXIT THEN
+    2dup s" false" compare 0= IF 2drop false EXIT THEN
     2drop true ;
 
 : fmcp.log-global-path ( -- a u )
-    s" FMCP_LOG" getenv 2dup nip IF EXIT THEN
+    s" FMCP_LOG" getenv 2dup nip IF
+        2dup s" 1" compare 0= IF 2drop fmcp.home-path s" /.fmcp/serve.log" fmcp.str-concat EXIT THEN
+        2dup s" on" compare 0= IF 2drop fmcp.home-path s" /.fmcp/serve.log" fmcp.str-concat EXIT THEN
+        EXIT
+    THEN
     2drop
     fmcp.home-path s" /.fmcp/serve.log" fmcp.str-concat ;
 
@@ -128,7 +132,8 @@ create fmcp.log-nlbuf 10 c,
         fmcp.log-write-line
     ELSE
         2r> 2drop
-    THEN ;
+    THEN
+    fmcp.cleanup-own-tmp ;
 
 : fmcp.log-request ( method-a method-u -- )
     2>r

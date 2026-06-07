@@ -169,19 +169,30 @@ variable fmcp.slurp-buf
 
 [THEN]
 
+require fmcp_utils.4th
+
 variable fmcp.emit-node
+2variable fmcp.json-out-path
+
+: fmcp.json-out-path! ( -- )
+    s" /tmp/fmcp-json-"
+    getpid fmcp.u>dec fmcp.str-concat
+    s" .out" fmcp.str-concat
+    fmcp.json-out-path 2! ;
 
 : fmcp.node-to-str ( node -- jsona jsonu )
     fmcp.emit-node !
+    fmcp.json-out-path!
     fjson.fid @ >r
-    s" /tmp/fmcp-json.out" w/o create-file throw fjson.fid !
+    fmcp.json-out-path 2@ w/o create-file throw fjson.fid !
     fmcp.emit-node @ fjson.emit-node
     fmcp.emit-node @ fjson.node-free
     fjson.fid @ close-file throw
     r> fjson.fid !
-    s" /tmp/fmcp-json.out" fmcp.slurp-file dup 0= IF
+    fmcp.json-out-path 2@ fmcp.slurp-file dup 0= IF
         s" {}" 2 EXIT
-    THEN ;
+    THEN
+    fmcp.json-out-path 2@ delete-file drop ;
 
 : fmcp.emit-node-line ( node -- )
     fjson.emit-to-stdout

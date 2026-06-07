@@ -78,7 +78,7 @@ After a failed batch, inspect logs (written by `fmcp serve`, not MCP client):
 
 | Log | Path |
 |-----|------|
-| Global session | `$FMCP_LOG` or `$FMCP_HOME/.fmcp/serve.log` |
-| Per-repo tool | `$project_root/.fmcp/tool.log` |
+| Global session | `$FMCP_LOG` path, or `FMCP_LOG=1` / `on` → `$FMCP_HOME/.fmcp/serve.log` (off when unset) |
+| Per-repo tool | `$project_root/.fmcp/tool.log` (when logging enabled) |
 
 Look for the last `TOOL_START` without `TOOL_END` — that names the repo (`project_root=`) and tool where the session died. `REQ`/`REQ_DONE` pairs show which JSON-RPC methods completed. Shell `SESSION_END` lines (from `bin/fmcp`) record process exit status when Gforth did not flush `SESSION_END reason=`.

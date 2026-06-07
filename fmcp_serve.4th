@@ -2,9 +2,11 @@
 
 require fmcp_mcp.4th
 require fmcp_readline.4th
+require fmcp_cleanup.4th
 require fmcp_log.4th
 
 : fmcp.serve-stdio ( -- )
+    fmcp.cleanup-stale-tmp
     fmcp.log-session-start
     begin
         fmcp.read-stdin-line dup 0= IF
