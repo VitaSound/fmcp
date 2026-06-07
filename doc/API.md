@@ -60,7 +60,7 @@ Environment (for tools):
 
 | Method | Handler | Response |
 |--------|---------|----------|
-| `initialize` | Fixed JSON | `protocolVersion` 2025-11-25, `serverInfo` fmcp 0.1.4 |
+| `initialize` | Fixed JSON | `protocolVersion` 2025-11-25, `serverInfo` fmcp 0.1.5 |
 | `notifications/initialized` | no-op | (no reply) |
 | `tools/list` | `fmcp.tools-list-node` | Tool schemas for all registered tools |
 | `tools/call` | `fmcp.call-tool` | Tool result or error JSON |

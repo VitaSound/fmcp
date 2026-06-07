@@ -7,10 +7,16 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-06-07
+
 ### Fixed
 
 - **`fcov_run` / `fmix_test` command build** — Gforth `s" "` is length 0, not a space; use `fmcp.sp$` between `run` and `test_command` (was `runfmix test`).
 - **MCP session drop on long `fcov_run` / `fmix_test` / `flint_lint`** — these tools now use background capture + polling (like `gforth_eval` / `shell_run`) with `timeout_seconds` (defaults: fcov 300s, fmix 120s, flint 60s, packages 30s); serve returns JSON on timeout instead of blocking until the client kills the process.
+
+### Added
+
+- Regression test `tests/fmcp_fcov_cmd_test.4th`; E2E `tests/mcp_fcov_session_test.sh` (fcov_run timeout + mcp_ping in one session).
 
 ## [0.1.4] - 2026-06-07
 
