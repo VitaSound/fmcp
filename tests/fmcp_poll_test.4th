@@ -16,6 +16,12 @@ fmcp.under-fcov? [IF]
 T{ fmcp.poll-test-pid-path s" 4242" fmcp.write-text-file
     fmcp.poll-test-pid-path fmcp.read-pid 4242 = -> -1 }T
 
+: fmcp.poll-test-dead-ec-path ( -- a u )
+    s" /tmp/fmcp-poll-test-dead.ec" ;
+
+T{ fmcp.poll-test-dead-ec-path s" " fmcp.write-text-file
+    0 2 fmcp.poll-test-dead-ec-path fmcp.poll-wait 125 = -> -1 }T
+
 [THEN]
 
 #ERRORS @ 0= [IF] ." fmcp_poll_test OK" cr [ELSE] ." fmcp_poll_test FAILED" cr [THEN]

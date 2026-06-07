@@ -11,7 +11,7 @@ variable fmcp.poll-result
 2variable fmcp.poll-ec-path
 
 : fmcp.ms@ ( -- u )
-    utime d>s 1000 * ;
+    utime d>s 1000 / ;
 
 : fmcp.poll-start! ( -- )
     utime fmcp.poll-start-ut 2! ;
@@ -39,11 +39,11 @@ variable fmcp.poll-result
         THEN
         2drop 25 ms
     loop
-    fmcp.poll-read-u @ dup 0< IF drop 1 THEN ;
+    fmcp.poll-read-u @ ;
 
 : fmcp.pid-alive? ( pid -- f )
     dup 0= IF drop false EXIT THEN
-    negate >r s" kill -0 " r> fmcp.u>dec fmcp.prepend-text
+    >r s" kill -0 " r> fmcp.u>dec fmcp.prepend-text
     fmcp.frag-null% fmcp.str-concat
     system fmcp.exit-status 0= ;
 
@@ -93,10 +93,11 @@ variable fmcp.poll-result
         THEN
         fmcp.poll-result @ -1 = IF
             fmcp.poll-pid @ fmcp.pid-alive? 0= IF
-                fmcp.poll-ec-path 2@ fmcp.slurp-file dup 0= IF
-                    2drop
+                fmcp.read-ec
+                dup -1 = IF
+                    drop 125 fmcp.poll-result !
                 ELSE
-                    0 0 2swap >number 2drop drop fmcp.poll-result !
+                    fmcp.poll-result !
                 THEN
             THEN
         THEN

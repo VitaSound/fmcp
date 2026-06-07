@@ -16,6 +16,7 @@ variable fmcp.cap-seq
 2variable fmcp.cap-out-path
 2variable fmcp.cap-pid-path
 2variable fmcp.cap-ec-path
+2variable fmcp.cap-cmd-path
 
 : fmcp.max-timeout-u ( -- u )
     s" FMCP_MAX_TIMEOUT" getenv 2dup nip IF
@@ -40,7 +41,22 @@ variable fmcp.cap-seq
     fmcp.u>dec fmcp.str-concat
     2dup s" .out" fmcp.str-concat fmcp.cap-out-path 2!
     2dup s" .pid" fmcp.str-concat fmcp.cap-pid-path 2!
-    s" .ec" fmcp.str-concat fmcp.cap-ec-path 2! ;
+    2dup s" .ec" fmcp.str-concat fmcp.cap-ec-path 2!
+    s" .cmd" fmcp.str-concat fmcp.cap-cmd-path 2! ;
+
+: fmcp.cap-script-body ( -- a u )
+    s\" #!/bin/sh\n"
+    s" cd '" fmcp.str-concat
+    fmcp.cap-root 2@ fmcp.str-concat
+    s\" ' || exit 1\n" fmcp.str-concat
+    s\" export TERM=dumb\n" fmcp.str-concat
+    fmcp.cap-inner 2@ fmcp.str-concat ;
+
+: fmcp.write-cap-script ( -- )
+    fmcp.cap-script-body fmcp.cap-cmd-path 2@ 2swap fmcp.write-text-file ;
+
+: fmcp.cap-unlink ( path-a path-u -- )
+    delete-file drop ;
 
 : fmcp.touch-empty ( path-a path-u -- )
     w/o create-file throw close-file throw ;
@@ -63,11 +79,10 @@ variable fmcp.cap-seq
     r> ;
 
 : fmcp.run-capture-bg-start ( -- pid )
-    fmcp.cap-root 2@ fmcp.validate-path 2drop
-    s" cd " fmcp.cap-root 2@ fmcp.str-concat
-    fmcp.frag-sh-c% fmcp.str-concat
+    s" TERM=dumb setsid sh -c "
     fmcp.frag-squote% fmcp.str-concat
-    fmcp.cap-inner 2@ fmcp.str-concat
+    s" sh " fmcp.str-concat
+    fmcp.cap-cmd-path 2@ fmcp.str-concat
     fmcp.frag-out% fmcp.str-concat
     fmcp.cap-out-path 2@ fmcp.str-concat
     fmcp.frag-redir2% fmcp.str-concat
@@ -91,8 +106,10 @@ variable fmcp.cap-seq
     fmcp.cap-out-path 2@ fmcp.touch-empty
     fmcp.cap-pid-path 2@ fmcp.touch-empty
     fmcp.cap-ec-path 2@ fmcp.touch-empty
+    fmcp.write-cap-script
     fmcp.run-capture-bg-start fmcp.eval-timeout @
     fmcp.cap-ec-path 2@ fmcp.poll-wait fmcp.eval-ec !
+    fmcp.cap-cmd-path 2@ fmcp.cap-unlink
     fmcp.cap-out-path 2@ fmcp.slurp-file
     dup IF
     ELSE 2drop s" " THEN
@@ -107,6 +124,23 @@ variable fmcp.cap-seq
     2swap fmcp.prepend-text
     s"  seconds" fmcp.str-concat ;
 
+: fmcp.no-ec-prefix ( -- a u )
+    s" fmcp subprocess exited without exit code" ;
+
+: fmcp.apply-capture-prefix ( out-a out-u ec -- out-a out-u ec )
+    { out-a out-u ec }
+    ec 124 = ec 125 = or IF
+        ec 124 = IF
+            fmcp.eval-timeout @ fmcp.timeout-prefix
+        ELSE
+            fmcp.no-ec-prefix
+        THEN
+        out-a out-u fmcp.prepend-text
+        ec
+    ELSE
+        out-a out-u ec
+    THEN ;
+
 : fmcp.gforth-eval ( root-a root-u source-a source-u timeout-u -- out-a out-u ec )
     fmcp.eval-timeout !
     fmcp.eval-source-in 2!
@@ -115,13 +149,8 @@ variable fmcp.cap-seq
     fmcp.eval-source-in 2@ s"  bye" fmcp.str-concat fmcp.eval-source 2!
     s" /tmp/fmcp-eval.4th" fmcp.eval-source 2@ fmcp.write-text-file
     fmcp.eval-root 2@ fmcp.gforth-eval-cmd fmcp.eval-timeout @
-    fmcp.run-capture-bg
-    fmcp.eval-ec !
-    fmcp.eval-ec @ 124 = IF
-        fmcp.eval-timeout @ fmcp.timeout-prefix
-        2swap fmcp.prepend-text
-    THEN
-    fmcp.eval-ec @ ;
+    fmcp.run-capture-bg fmcp.eval-ec !
+    fmcp.eval-ec @ fmcp.apply-capture-prefix ;
 
 : fmcp.shell-run ( root-a root-u cmd-a cmd-u timeout-u -- out-a out-u ec )
     { root-a root-u cmd-a cmd-u timeout-u }
@@ -134,11 +163,7 @@ variable fmcp.cap-seq
     fmcp.eval-timeout @ fmcp.clamp-timeout fmcp.eval-timeout !
     fmcp.cap-root 2@ fmcp.cap-inner 2@ fmcp.eval-timeout @ fmcp.run-capture-bg
     fmcp.eval-ec !
-    fmcp.eval-ec @ 124 = IF
-        fmcp.eval-timeout @ fmcp.timeout-prefix
-        2swap fmcp.prepend-text
-    THEN
-    fmcp.eval-ec @ ;
+    fmcp.eval-ec @ fmcp.apply-capture-prefix ;
 
 : fmcp.mcp-ping-text ( -- a u )
     s" fmcp ok version "

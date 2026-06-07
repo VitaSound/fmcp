@@ -84,11 +84,11 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 
 `gforth_eval` appends ` bye`, writes `/tmp/fmcp-eval.4th`, runs `gforth /tmp/fmcp-eval.4th` in `project_root` via background capture (`fmcp.run-capture-bg`). Exit 124 → `fmcp timed out after N seconds` prefix and `isError: true`.
 
-`shell_run` runs an arbitrary shell command in `project_root` with the same timeout/capture path as `gforth_eval`.
+`shell_run` runs an arbitrary shell command in `project_root` with the same timeout/capture path as `gforth_eval`. The command is written verbatim to a temporary `/tmp/fmcp-cap-*.cmd` script (no user input embedded in `sh -c` quoting).
 
 `mcp_ping` returns `fmcp ok version … serve_pid …` for session health checks.
 
-All tool results prepend a metadata line: `[fmcp] elapsed_ms=…  exit_code=…` (newline before tool output). Output is truncated at `FMCP_MAX_OUTPUT` (default 262144 bytes). Timeout (exit 124) adds `fmcp timed out after N seconds` to the body.
+All tool results prepend a metadata line: `[fmcp] elapsed_ms=…  exit_code=…` (newline before tool output). Output is truncated at `FMCP_MAX_OUTPUT` (default 262144 bytes). Timeout (exit 124) adds `fmcp timed out after N seconds` to the body. Exit 125 means the subprocess died without writing an exit-code file (fail-fast poll, not a full timeout wait).
 
 Unknown tool → JSON error with `"unknown tool"` in text content.
 
@@ -102,7 +102,7 @@ Unknown tool → JSON error with `"unknown tool"` in text content.
 | `fmcp_mcp.4th` | JSON-RPC method routing. |
 | `fmcp_tools.4th` | `tools/list` / `tools/call`, result JSON shape. |
 | `fmcp_exec.4th` | Shell out to fmix/flint/fcov binaries; `run-capture-bg`, `gforth-eval`, `shell-run`. |
-| `fmcp_poll.4th` | PID poll/kill for background subprocess timeout (exit 124). |
+| `fmcp_poll.4th` | PID poll/kill for background subprocess timeout (exit 124); fail-fast exit 125 when PID is gone but `.ec` is empty. |
 | `fmcp_shellfrags.4th` | Shell byte fragments (`>`, `;`, `--` safe in Gforth source). |
 | `fmcp_json.4th` | fjson 0.2.3, `fmcp.line-parse`, `fmcp.parse-json`, emit. |
 | `fmcp_utils.4th` | Paths, slurp, str helpers, `system-checked`. |

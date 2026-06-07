@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`shell_run` quoting** — user `command` is written to `/tmp/fmcp-cap-*.cmd` and run via `sh CMDPATH`; arbitrary `'`, `|`, `;` no longer break the capture wrapper.
+- **`poll-wait` fail-fast** — dead PID with empty `.ec` returns exit 125 after `read-ec` retry (~1s), not the full `timeout_seconds` wait; fixes MCP stdio blocking on malformed shell commands.
+- **`pid-alive?`** — use `kill -0 PID` (not process-group `-PID`) so background capture PIDs are detected correctly.
+
 ### Added
 
 - **`mcp_ping` MCP tool** — health check with version and serve pid.
@@ -14,7 +20,8 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 - **Background subprocess capture** — `fmcp_poll.4th`, `fmcp.run-capture-bg` (PID poll, adaptive interval, kill → exit 124).
 - **Tool observability** — `[fmcp] elapsed_ms=` / `exit_code=` metadata; `FMCP_MAX_OUTPUT` truncation.
 - **E2E session tests** — `tests/mcp_session_timeout_test.sh`, `tests/mcp_shell_run_timeout_test.sh`.
-- Unit tests: `fmcp_shell_run_test.4th`, `fmcp_poll_test.4th`; `mcp_ping` / `shell_run` in smoke and call_tool tests.
+- Unit tests: `fmcp_shell_run_test.4th`, `fmcp_shell_run_quotes_test.4th`, `fmcp_poll_test.4th`; `mcp_ping` / `shell_run` in smoke and call_tool tests.
+- E2E: `tests/mcp_shell_run_quotes_test.sh` — single-quoted `grep` in one `serve` session.
 - **Coverage gate** — `tests/coverage_mcp_gate.sh` + `tests/coverage_gate_check.py` (100% production colon-defs with denylist).
 - **fcov guards** — `fmcp.under-fcov?` in `fmcp_utils.4th`; subprocess tests skip under instrumentation.
 - **In-process coverage** — `tests/fmcp_coverage_direct_test.4th`, `run_serve_one.sh`, `run_handle_env.sh` (real gforth via `FCOV_REAL_GFORTH`).
