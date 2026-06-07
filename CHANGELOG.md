@@ -7,6 +7,20 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-06-07
+
+### Added
+
+- **Serve diagnostics logging** (`fmcp_log.4th`) — structured lines for `SESSION_START`/`END`, `REQ`/`REQ_DONE`, `TOOL_START`/`TOOL_END`, `PARSE_ERROR`.
+  - Global log: `$FMCP_LOG` or `$FMCP_HOME/.fmcp/serve.log` (default for `fmcp serve`; disabled for `fmcp test` unless `FMCP_LOG` is set).
+  - Per-repo log: `$project_root/.fmcp/tool.log` (short `TOOL_START`/`TOOL_END` lines when `project_root` is known).
+  - `TOOL_START` without matching `TOOL_END` marks the last tool before a crash or `Connection closed`.
+- E2E `tests/mcp_serve_log_test.sh`; unit smoke `tests/fmcp_log_test.4th`.
+
+### Changed
+
+- **MCP session crash after many `flint_lint` calls** — cap reads use `fmcp.read-capture-out` (slurp + truncate at `FMCP_MAX_OUTPUT`) so huge lint output no longer grows unbounded; avoid batching many large `flint_lint` results in one serve without restart.
+
 ## [0.1.5] - 2026-06-07
 
 ### Fixed

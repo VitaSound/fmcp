@@ -17,6 +17,13 @@ variable fmcp.cap-seq
 2variable fmcp.cap-pid-path
 2variable fmcp.cap-ec-path
 2variable fmcp.cap-cmd-path
+variable fmcp.capture-truncated
+
+: fmcp.read-capture-out ( path-a path-u -- out-a out-u )
+    0 fmcp.capture-truncated !
+    fmcp.slurp-file dup 0= IF 2drop s" " EXIT THEN
+    fmcp.max-output-u fmcp.truncate-text
+    IF 1 fmcp.capture-truncated ! THEN ;
 
 : fmcp.max-timeout-u ( -- u )
     s" FMCP_MAX_TIMEOUT" getenv 2dup nip IF
@@ -75,7 +82,7 @@ variable fmcp.cap-seq
     system
     fmcp.exit-status >r
     fmcp.restore-terminal
-    fmcp.cap-out-path 2@ fmcp.slurp-file
+    fmcp.cap-out-path 2@ fmcp.read-capture-out
     r> ;
 
 : fmcp.run-capture-bg-start ( -- pid )
@@ -110,9 +117,7 @@ variable fmcp.cap-seq
     fmcp.run-capture-bg-start fmcp.eval-timeout @
     fmcp.cap-ec-path 2@ fmcp.poll-wait fmcp.eval-ec !
     fmcp.cap-cmd-path 2@ fmcp.cap-unlink
-    fmcp.cap-out-path 2@ fmcp.slurp-file
-    dup IF
-    ELSE 2drop s" " THEN
+    fmcp.cap-out-path 2@ fmcp.read-capture-out
     fmcp.eval-ec @ ;
 
 : fmcp.gforth-eval-cmd ( -- cmd-a cmd-u )

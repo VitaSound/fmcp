@@ -51,7 +51,20 @@ else
 fi
 export FMCP_HOME FMCP_CMD FMCP_ARG
 
+if [ "$FMCP_CMD" = "test" ] && [ -z "${FMCP_LOG+x}" ]; then
+    export FMCP_LOG=0
+fi
+
 if [ "$FMCP_CMD" = "serve" ]; then
+    FMCP_LOG="${FMCP_LOG:-$FMCP_HOME/.fmcp/serve.log}"
+    export FMCP_LOG
+    mkdir -p "$(dirname "$FMCP_LOG")"
+    log_exit() {
+        local st=$?
+        printf '[%s] SESSION_END shell pid=%s status=%s\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$$" "$st" >>"$FMCP_LOG"
+    }
+    trap log_exit EXIT
     if [ -n "${FMCP_DEBUG:-}" ]; then
         stderr_dest="/tmp/fmcp-stderr.log"
     else

@@ -2,6 +2,7 @@
 
 require fmcp_build.4th
 require fmcp_exec.4th
+require fmcp_log.4th
 
 2variable fmcp.tool-t0-ut
 
@@ -26,64 +27,62 @@ require fmcp_exec.4th
     fmcp.max-output-u fmcp.truncate-text { trunc? }
     trunc? IF
         s\" \nfmcp output truncated" fmcp.str-concat THEN
+    fmcp.capture-truncated @ IF
+        s\" \nfmcp output truncated" fmcp.str-concat THEN
     r@ fmcp.tool-meta-line
     2swap fmcp.prepend-text
     r> ;
 
 : fmcp.tool-result-final ( text-a text-u ec -- node )
+    >r fmcp.tool-elapsed-ms fmcp.capture-truncated @ r> fmcp.log-tool-end
     fmcp.tool-format-result fmcp.tool-result-node ;
 
 : fmcp.call-tool ( -- node )
     fmcp.tool-begin
-    fmcp.param-name 2dup nip 0= IF
-        2drop s" missing tool name" fmcp.tool-error-node EXIT
+    fmcp.param-name 2dup fmcp.log-tool-name 2! 2drop
+    fmcp.log-tool-name 2@ nip 0= IF
+        s" missing tool name" fmcp.tool-error-node EXIT
     THEN
-    2dup s" mcp_ping" compare 0= IF
-        2drop fmcp.mcp-ping-text 0 fmcp.tool-result-final EXIT
+    fmcp.log-tool-name 2@ fmcp.log-tool-start
+    fmcp.log-tool-name 2@ s" mcp_ping" compare 0= IF
+        fmcp.mcp-ping-text 0 fmcp.tool-result-final EXIT
     THEN
-    2dup s" shell_run" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" shell_run" compare 0= IF
         s" project_root" fmcp.arg-string
         s" command" fmcp.arg-string
         s" timeout_seconds" 10 fmcp.arg-number-default
         fmcp.shell-run fmcp.tool-result-final EXIT
     THEN
-    2dup s" fmix_test" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" fmix_test" compare 0= IF
         s" project_root" fmcp.arg-string
         s" test_file" fmcp.arg-string
         s" timeout_seconds" 120 fmcp.arg-number-default
         fmcp.fmix-test fmcp.tool-result-final EXIT
     THEN
-    2dup s" fmix_packages_get" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" fmix_packages_get" compare 0= IF
         s" project_root" fmcp.arg-string
         s" timeout_seconds" 30 fmcp.arg-number-default
         fmcp.fmix-packages-get fmcp.tool-result-final EXIT
     THEN
-    2dup s" flint_lint" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" flint_lint" compare 0= IF
         s" project_root" fmcp.arg-string
         s" timeout_seconds" 60 fmcp.arg-number-default
         fmcp.flint-lint fmcp.tool-result-final EXIT
     THEN
-    2dup s" fcov_run" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" fcov_run" compare 0= IF
         s" project_root" fmcp.arg-string
         s" test_command" fmcp.arg-string
         s" timeout_seconds" 300 fmcp.arg-number-default
         fmcp.fcov-run fmcp.tool-result-final EXIT
     THEN
-    2dup s" fcov_report" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" fcov_report" compare 0= IF
         s" project_root" fmcp.arg-string
         fmcp.fcov-report-json fmcp.tool-result-final EXIT
     THEN
-    2dup s" gforth_eval" compare 0= IF
-        2drop
+    fmcp.log-tool-name 2@ s" gforth_eval" compare 0= IF
         s" project_root" fmcp.arg-string
         s" source" fmcp.arg-string
         s" timeout_seconds" 10 fmcp.arg-number-default
         fmcp.gforth-eval fmcp.tool-result-final EXIT
     THEN
-    2drop s" unknown tool" fmcp.tool-error-node ;
+    s" unknown tool" fmcp.tool-error-node ;

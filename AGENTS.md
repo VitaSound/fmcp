@@ -51,6 +51,8 @@ Use MCP tools from **vitasound-forth** when working on any VitaSound Forth check
 
 ```text
 fmix_packages_get → flint_lint → fmix_test → (optional) fcov_run → fcov_report
+
+For **feco batch coverage** (`fcov_run` on many repos): prefer **fcov_run only** per repo (skip `flint_lint` in the same serve session). Call **`mcp_ping`** between repos; **restart MCP** if the session drops after ~8–10 heavy calls. Large `flint_lint` output (e.g. frules ~400KB) is truncated at `FMCP_MAX_OUTPUT` (default 256KB).
 ```
 
 Use **`gforth_eval`** for quick stack checks instead of shell `gforth`; server enforces timeout (exit 124 → `isError`).
@@ -69,3 +71,14 @@ For changes in **this** repo (`fmcp`), `project_root` = `$FMCP_HOME` (fmcp check
 Server not connected: Cursor **Settings → MCP** → `vitasound-forth` must be green → **Refresh**. See [README.md](README.md) for `mcp.json` paths (`FMCP_HOME`, `FMIX_HOME`, `PATH` in `env`).
 
 Optional diagnostics in `tests/`: `test_mcp_smoke.sh`, `mcp_probe_run.sh` (protocol log → `/tmp/mcp-probe.log`).
+
+### If MCP drops (`Connection closed`)
+
+After a failed batch, inspect logs (written by `fmcp serve`, not MCP client):
+
+| Log | Path |
+|-----|------|
+| Global session | `$FMCP_LOG` or `$FMCP_HOME/.fmcp/serve.log` |
+| Per-repo tool | `$project_root/.fmcp/tool.log` |
+
+Look for the last `TOOL_START` without `TOOL_END` — that names the repo (`project_root=`) and tool where the session died. `REQ`/`REQ_DONE` pairs show which JSON-RPC methods completed. Shell `SESSION_END` lines (from `bin/fmcp`) record process exit status when Gforth did not flush `SESSION_END reason=`.

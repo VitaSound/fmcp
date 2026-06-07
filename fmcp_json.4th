@@ -126,6 +126,7 @@ variable fmcp.b-id-node
 
 variable fmcp.slurp-fid
 variable fmcp.slurp-u
+variable fmcp.slurp-read-u
 variable fmcp.slurp-buf
 
 : fmcp.slurp-file ( patha pathu -- bufa bufu | 0 0 )
@@ -139,6 +140,21 @@ variable fmcp.slurp-buf
     fmcp.slurp-buf @ fmcp.slurp-u @ fmcp.slurp-fid @ read-file throw drop
     fmcp.slurp-fid @ close-file throw
     fmcp.slurp-buf @ fmcp.slurp-u @ ;
+
+: fmcp.slurp-file-limit ( patha pathu maxu -- bufa bufu limited? )
+    { patha pathu maxu }
+    patha pathu r/o open-file throw fmcp.slurp-fid !
+    fmcp.slurp-fid @ file-size throw d>s
+    dup 0= IF
+        drop fmcp.slurp-fid @ close-file throw 0 0 false EXIT
+    THEN
+    dup fmcp.slurp-u !
+    maxu swap umin dup fmcp.slurp-read-u !
+    fmcp.slurp-read-u @ allocate throw fmcp.slurp-buf !
+    fmcp.slurp-buf @ fmcp.slurp-read-u @ fmcp.slurp-fid @ read-file throw drop
+    fmcp.slurp-fid @ close-file throw
+    fmcp.slurp-u @ fmcp.slurp-read-u @ >
+    fmcp.slurp-buf @ fmcp.slurp-read-u @ swap ;
 
 [THEN]
 
