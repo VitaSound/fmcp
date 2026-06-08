@@ -7,6 +7,14 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-06-08
+
+### Added
+- `tests/fmcp_gaps_test.4th` — poll frags, log, cleanup paths; raises fcov
+  baseline from ~65 % to ~71 % under `fcov run fmix test`.
+- GitHub Actions CI (Gforth 0.7.9, fmix 0.7.2, `fmix test`).
+- License, Ver and Cov badges in `README.md`.
+
 ## [0.1.14] - 2026-06-06
 
 ### Changed
