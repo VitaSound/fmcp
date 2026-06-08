@@ -50,6 +50,7 @@ create fmcp.log-nlbuf 10 c,
         2drop
     THEN ;
 
+\ Stack: path-a path-u below, line-a line-u on top (log-write-line uses 2swap to get this).
 : fmcp.log-append-path { path-a path-u line-a line-u -- }
     fmcp.log-enabled? 0= IF EXIT THEN
     path-a path-u fmcp.log-dirname fmcp.log-ensure-dir
@@ -102,7 +103,7 @@ create fmcp.log-nlbuf 10 c,
 
 : fmcp.log-project-append ( msg-a msg-u -- )
     fmcp.log-project-root 2@ nip 0= IF 2drop EXIT THEN
-    fmcp.log-project-root 2@ fmcp.log-project-path fmcp.log-append-path ;
+    fmcp.log-project-root 2@ fmcp.log-project-path 2swap fmcp.log-append-path ;
 
 : fmcp.log-project-root-set ( root-a root-u -- )
     2dup nip IF
