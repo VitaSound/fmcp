@@ -95,9 +95,23 @@ When `test_command` is omitted on `fcov_run`, fmcp passes an explicit default to
 
 `mcp_ping` returns `fmcp ok version … serve_pid …` for session health checks.
 
-All tool results prepend a metadata line: `[fmcp] elapsed_ms=…  exit_code=…` (newline before tool output). Output is truncated at `FMCP_MAX_OUTPUT` (default 262144 bytes). Timeout (exit 124) adds `fmcp timed out after N seconds` to the body. Exit 125 means the subprocess died without writing an exit-code file (fail-fast poll, not a full timeout wait).
+All `tools/call` results use a **unified contract** in both `structuredContent` and `content[0].text` (same JSON object):
 
-Unknown tool → JSON error with `"unknown tool"` in text content.
+| Field | Type | Description |
+|-------|------|-------------|
+| `tool` | string | MCP tool name |
+| `exit_code` | number | Subprocess exit code (`-1` for fmcp-side errors) |
+| `elapsed_ms` | number | Wall time in the serve process |
+| `truncated` | boolean | Output clipped at `FMCP_MAX_OUTPUT` (default 262144) or capture limit |
+| `output_bytes` | number | Byte length of `output` |
+| `project_root` | string | Present when the tool had `project_root` |
+| `artifacts` | string[] | Paths (e.g. `$project_root/.fmcp/tool.log` when `FMCP_LOG` enabled) |
+| `summary` | string | Short status (first 200 chars of output, or `ok` / `timed out` / `failed`) |
+| `output` | string | Full captured stdout/stderr (or tool text) |
+
+`isError` is `true` when `exit_code ≠ 0`. Timeout (exit 124) may include `fmcp timed out after N seconds` in `output`. Exit 125 means the subprocess died without writing an exit-code file (fail-fast poll).
+
+Unknown tool → `isError: true`, `exit_code: 1`, `summary`: error message. (Internal fmcp errors use `exit_code` 1 in JSON; fjson emits unsigned integers only.)
 
 ---
 

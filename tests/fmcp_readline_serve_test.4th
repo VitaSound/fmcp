@@ -38,10 +38,14 @@ fmcp.home-path 2constant serve-home
 : fmcp.serve-stress-cmd ( -- a u )
     s" tests/run_serve_stress.sh 200" ;
 
+: fmcp.serve-contract-cmd ( -- a u )
+    s" tests/mcp_tool_result_contract_test.sh" ;
+
 T{ fmcp.serve-ping-cmd fmcp.serve-run -> -1 }T
 T{ fmcp.serve-line-cmd fmcp.serve-run -> -1 }T
 T{ fmcp.serve-one-cmd fmcp.serve-run -> -1 }T
 T{ fmcp.serve-stress-cmd fmcp.serve-run -> -1 }T
+T{ fmcp.serve-contract-cmd fmcp.serve-run -> -1 }T
 
 [THEN]
 

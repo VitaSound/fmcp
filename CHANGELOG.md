@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-06-06
+
+### Changed
+
+- **Unified `tools/call` result contract** — every tool returns the same JSON shape in `structuredContent` and `content[0].text`: `tool`, `exit_code`, `elapsed_ms`, `truncated`, `output_bytes`, optional `project_root`, `artifacts[]`, `summary`, `output`. Replaces the old `[fmcp] elapsed_ms=…` text prefix. Module `fmcp_result.4th`; E2E `tests/mcp_tool_result_contract_test.sh`.
+
 ## [0.1.13] - 2026-06-08
 
 ### Fixed

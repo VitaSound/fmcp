@@ -3,39 +3,23 @@
 require fmcp_build.4th
 require fmcp_exec.4th
 require fmcp_log.4th
+require fmcp_result.4th
 
 2variable fmcp.tool-t0-ut
 
 : fmcp.tool-begin ( -- )
-    utime fmcp.tool-t0-ut 2! ;
+    utime fmcp.tool-t0-ut 2!
+    fmcp.result-reset ;
 
 : fmcp.tool-elapsed-ms ( -- u )
     utime fmcp.tool-t0-ut 2@ d- d>s 1000 / ;
 
-: fmcp.tool-meta-line ( ec -- a u )
-    >r
-    base @ >r decimal
-    s" [fmcp] elapsed_ms="
-    fmcp.tool-elapsed-ms fmcp.u>dec fmcp.str-concat
-    s"  exit_code=" fmcp.str-concat
-    r> base !
-    r> fmcp.u>dec fmcp.str-concat
-    s" \n" fmcp.str-concat ;
-
-: fmcp.tool-format-result ( text-a text-u ec -- text-a text-u ec )
-    >r
-    fmcp.max-output-u fmcp.truncate-text { trunc? }
-    trunc? IF
-        s\" \nfmcp output truncated" fmcp.str-concat THEN
-    fmcp.capture-truncated @ IF
-        s\" \nfmcp output truncated" fmcp.str-concat THEN
-    r@ fmcp.tool-meta-line
-    2swap fmcp.prepend-text
-    r> ;
-
 : fmcp.tool-result-final ( text-a text-u ec -- node )
+    fmcp.result-project-root-capture
+    fmcp.log-tool-name 2@ fmcp.result-tool-set
+    fmcp.tool-elapsed-ms fmcp.res-elapsed-ms !
     >r fmcp.tool-elapsed-ms fmcp.capture-truncated @ r> fmcp.log-tool-end
-    fmcp.tool-format-result fmcp.tool-result-node ;
+    fmcp.result-pack-node fmcp.tool-result-node ;
 
 : fmcp.call-tool-dispatch ( -- node )
     fmcp.log-tool-name 2@ s" mcp_ping" compare 0= IF
@@ -76,14 +60,14 @@ require fmcp_log.4th
         s" timeout_seconds" 10 fmcp.arg-number-default
         fmcp.gforth-eval fmcp.tool-result-final
     ELSE
-        s" unknown tool" fmcp.tool-error-node
+        s" unknown tool" fmcp.result-error-node fmcp.tool-result-node
     THEN THEN THEN THEN THEN THEN THEN THEN THEN ;
 
 : fmcp.call-tool ( -- node )
     fmcp.tool-begin
     fmcp.param-name 2dup fmcp.log-tool-name 2! 2drop
     fmcp.log-tool-name 2@ nip 0= IF
-        s" missing tool name" fmcp.tool-error-node
+        s" missing tool name" fmcp.result-error-node fmcp.tool-result-node
     ELSE
         fmcp.log-tool-start
         fmcp.call-tool-dispatch

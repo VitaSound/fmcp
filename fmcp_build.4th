@@ -9,6 +9,7 @@ require fmcp_json.4th
 2variable fmcp.b-desc
 2variable fmcp.b-text
 variable fmcp.b-ec
+variable fmcp.b-structured
 variable fmcp.b-result
 variable fmcp.b-entry
 variable fmcp.b-lst
@@ -152,6 +153,8 @@ variable fmcp.schema-node
     s" content" fmcp.b-wrap @ fmcp.obj-add-val
     fmcp.b-ec @ 0= 0= fjson.node-bool fmcp.b-val !
     s" isError" fmcp.b-wrap @ fmcp.obj-add-val
+    fmcp.b-structured @ fmcp.b-val !
+    s" structuredContent" fmcp.b-wrap @ fmcp.obj-add-val
     fmcp.b-wrap @ fmcp.build-obj ;
 
 : fmcp.build-tools-cap ( -- node )
@@ -222,17 +225,11 @@ variable fmcp.schema-node
     fmcp.build-tools-list-result fmcp.b-result !
     fmcp.build-rpc ;
 
-: fmcp.tool-result-node ( text-a text-u ec -- node )
-    fmcp.b-ec !
-    fmcp.b-text 2!
+: fmcp.tool-result-node ( structured-node -- node )
+    dup fmcp.b-structured !
+    dup fmcp.node-to-str fmcp.b-text 2!
     fmcp.build-tool-result fmcp.b-result !
-    fmcp.build-rpc ;
-
-: fmcp.tool-error-node ( msg-a msg-u -- node )
-    fmcp.b-text 2!
-    -1 fmcp.b-ec !
-    fmcp.build-tool-result fmcp.b-result !
-    fmcp.build-rpc ;
+    fmcp.build-rpc nip ;
 
 fmcp.init-schema
 :noname depth 0> IF drop THEN ; execute

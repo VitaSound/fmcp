@@ -198,7 +198,6 @@ variable fmcp.emit-node
     fjson.fid @ >r
     fmcp.json-out-path 2@ w/o create-file throw fjson.fid !
     fmcp.emit-node @ fjson.emit-node
-    fmcp.emit-node @ fjson.node-free
     fjson.fid @ close-file throw
     r> fjson.fid !
     fmcp.json-out-path 2@ fmcp.slurp-file dup 0= IF

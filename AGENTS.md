@@ -19,6 +19,7 @@ See also [fmix/AGENTS.md](../fmix/AGENTS.md) for ecosystem workflow.
 - `bin/fmcp` — launcher; `serve` runs one long-lived Gforth process (`require fmcp_serve.4th`, `fmcp.serve-stdio`)
 - `fmcp_json.4th` — fjson **0.2.4** tree in/out (`line-parse`, `emit-node-line`)
 - `fmcp_build.4th` — builders via `fmcp.b-*` / `fmcp.obj-*` slots (no `{ }` / `>r` on hot path)
+- `fmcp_result.4th` — unified `tools/call` JSON contract (`structuredContent` + `content[0].text`)
 - `fmcp_mcp.4th` — JSON-RPC dispatch (`mcp-handle-core`)
 - `fmcp_exec.4th` — subprocess wrappers for `tools/call`
 

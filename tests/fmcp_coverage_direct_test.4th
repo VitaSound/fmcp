@@ -50,7 +50,7 @@ T{ fmcp.cov-tool-nope-line fmcp.mcp-handle-line depth 0= -> -1 }T
 
 T{ fmcp.schema-node@ drop
     fmcp.build-method-not-found drop
-    s" bad" fmcp.tool-error-node drop depth 0= -> -1 }T
+    s" bad" fmcp.result-error-node fmcp.tool-result-node drop depth 0= -> -1 }T
 
 T{ s\" {\\\"jsonrpc\\\":\\\"2.0\\\",\\\"method\\\":\\\"notifications/initialized\\\"}"
     fmcp.mcp-handle-line depth 0= -> -1 }T
