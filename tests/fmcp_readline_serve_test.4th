@@ -35,9 +35,13 @@ fmcp.home-path 2constant serve-home
 : fmcp.serve-one-cmd ( -- a u )
     s" tests/run_serve_one.sh" ;
 
+: fmcp.serve-stress-cmd ( -- a u )
+    s" tests/run_serve_stress.sh 200" ;
+
 T{ fmcp.serve-ping-cmd fmcp.serve-run -> -1 }T
 T{ fmcp.serve-line-cmd fmcp.serve-run -> -1 }T
 T{ fmcp.serve-one-cmd fmcp.serve-run -> -1 }T
+T{ fmcp.serve-stress-cmd fmcp.serve-run -> -1 }T
 
 [THEN]
 

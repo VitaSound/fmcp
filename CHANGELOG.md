@@ -7,6 +7,11 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **MCP `serve` session drop (`Connection closed`)** — long feco batches (many `mcp_ping` / `fcov_run` in one session) no longer die around request ~23 with Gforth `Stack overflow`. Root cause: `EXIT` from `read-stdin-line`, `mcp-handle-core`, and `call-tool` corrupted the serve loop return stack; mitigated by rewriting those paths without `EXIT`, increasing default Gforth stacks (`GFORTH_DSTACK` / `GFORTH_RSTACK`, default 65536), and hardening tmp cleanup. Stress test: `tests/run_serve_stress.sh`.
+- **MCP immediate `Error` on start** — `fmcp.cleanup-stale-tmp` used `system drop` but Gforth `system` leaves no stack value → `Stack underflow` before first request (stderr was hidden unless `FMCP_DEBUG`). Fixed: plain `system`; `bin/fmcp` resolves `GFORTH` to binary path and prints Gforth errors on failure.
+
 ## [0.1.12] - 2026-06-08
 
 ### Added

@@ -42,8 +42,11 @@ variable fmcp.b-id-node
     fmcp.parsed-root@ fjson.object-get ;
 
 : fmcp.req-str ( key-a key-u -- vala valu | 0 0 )
-    fmcp.req-get dup 0= IF drop 0 0 EXIT THEN
-    fjson.node-str@ ;
+    fmcp.req-get dup IF
+        fjson.node-str@
+    ELSE
+        drop 0 0
+    THEN ;
 
 : fmcp.json-get-string ( linea lineu keya keyu -- vala valu | 0 0 )
     fjson.key-string ;
@@ -62,8 +65,11 @@ variable fmcp.b-id-node
     fmcp.linea @ fmcp.lineu @ 2swap search nip nip 0<> ;
 
 : fmcp.object-get-str ( keya keyu obj -- vala valu | 0 0 )
-    fjson.object-get dup 0= IF drop 0 0 EXIT THEN
-    fjson.node-str@ ;
+    fjson.object-get dup IF
+        fjson.node-str@
+    ELSE
+        drop 0 0
+    THEN ;
 
 : fmcp.mcp-id-node ( -- node )
     s" id" fmcp.req-get ?dup IF
@@ -80,40 +86,46 @@ variable fmcp.b-id-node
     fmcp.mcp-id-node fmcp.b-id-node ! ;
 
 : fmcp.mcp-id-str ( -- ida idu )
-    s" id" fmcp.req-get dup 0= IF
-        drop s" 0" EXIT
-    THEN
-    dup fjson.node-type FJSON_J-NUM = IF
-        fjson.node-num@ fjson.u>str
+    s" id" fmcp.req-get dup IF
+        dup fjson.node-type FJSON_J-NUM = IF
+            fjson.node-num@ fjson.u>str
+        ELSE
+            fjson.node-str@
+        THEN
     ELSE
-        fjson.node-str@
+        drop s" 0"
     THEN ;
 
 : fmcp.param-name ( -- na nu | 0 0 )
-    s" params" fmcp.req-get dup 0= IF
-        drop 0 0 EXIT
-    THEN
-    s" name" rot fmcp.object-get-str ;
+    s" params" fmcp.req-get dup IF
+        s" name" rot fmcp.object-get-str
+    ELSE
+        drop 0 0
+    THEN ;
 
 : fmcp.arg-string ( keya keyu -- va vu | 0 0 )
     fmcp.arg-key 2!
-    s" params" fmcp.req-get dup 0= IF
-        drop 0 0 EXIT
-    THEN
-    s" arguments" rot fjson.object-get dup 0= IF
-        drop 0 0 EXIT
-    THEN
-    fmcp.arg-key 2@ rot fmcp.object-get-str ;
+    s" params" fmcp.req-get dup IF
+        s" arguments" rot fjson.object-get dup IF
+            fmcp.arg-key 2@ rot fmcp.object-get-str
+        ELSE
+            drop 0 0
+        THEN
+    ELSE
+        drop 0 0
+    THEN ;
 
 : fmcp.arg-node ( keya keyu -- node|0 )
     fmcp.arg-key 2!
-    s" params" fmcp.req-get dup 0= IF
-        drop 0 EXIT
-    THEN
-    s" arguments" rot fjson.object-get dup 0= IF
-        drop 0 EXIT
-    THEN
-    fmcp.arg-key 2@ rot fjson.object-get ;
+    s" params" fmcp.req-get dup IF
+        s" arguments" rot fjson.object-get dup IF
+            fmcp.arg-key 2@ rot fjson.object-get
+        ELSE
+            drop 0
+        THEN
+    ELSE
+        drop 0
+    THEN ;
 
 : fmcp.arg-number ( keya keyu -- n | 0 )
     fmcp.arg-node dup 0= IF

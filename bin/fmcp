@@ -8,6 +8,13 @@
 #
 : "${FMCP_HOME:=$HOME/fmcp}"
 GFORTH="${GFORTH:-gforth}"
+GFORTH_RSTACK="${GFORTH_RSTACK:-65536}"
+GFORTH_DSTACK="${GFORTH_DSTACK:-65536}"
+# GFORTH must be a binary path for serve (not "gforth -flags"). Take first word only.
+GFORTH_BIN="${GFORTH%% *}"
+if ! GFORTH_BIN="$(command -v "$GFORTH_BIN" 2>/dev/null)"; then
+    GFORTH_BIN=""
+fi
 unset GFORTHPATH
 
 reset_tty() {
@@ -85,19 +92,35 @@ if [ "$FMCP_CMD" = "serve" ]; then
     else
         stderr_dest="/dev/null"
     fi
+    if [ -z "$GFORTH_BIN" ]; then
+        echo "[ERROR] fmcp serve: Gforth not found (GFORTH='${GFORTH}'). Set GFORTH to the gforth binary path." >&2
+        exit 127
+    fi
     set +e
-    "$GFORTH" \
+    # Long MCP sessions (feco batches, many mcp_ping/fcov_run calls) need a larger return stack.
+    "$GFORTH_BIN" -d "$GFORTH_DSTACK" -r "$GFORTH_RSTACK" \
         -e "s\" $FMCP_HOME\" fpath also-path" \
         -e "require fmcp_serve.4th" \
         -e "fmcp.serve-stdio" \
         -e "0 (bye)" 2>>"$stderr_dest"
     status=$?
     set -e
+    if [ "$status" -ne 0 ]; then
+        if [ -s "$stderr_dest" ]; then
+            cat "$stderr_dest" >&2
+        elif [ "$status" -eq 127 ]; then
+            echo "[ERROR] fmcp serve: failed to start Gforth (GFORTH='${GFORTH}')." >&2
+        fi
+    fi
     exit "$status"
 fi
 
+if [ -z "$GFORTH_BIN" ]; then
+    echo "[ERROR] fmcp: Gforth not found (GFORTH='${GFORTH}')." >&2
+    exit 127
+fi
 set +e
-"$GFORTH" \
+"$GFORTH_BIN" \
     -e "s\" $FMCP_HOME\" fpath also-path" \
     "$FMCP_HOME/fmcp.4th"
 status=$?

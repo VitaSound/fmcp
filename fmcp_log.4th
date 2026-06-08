@@ -166,8 +166,8 @@ create fmcp.log-nlbuf 10 c,
     THEN ;
 
 : fmcp.log-tool-start ( -- )
-    fmcp.log-tool-name 2@ nip 0= IF EXIT THEN
-    fmcp.log-enabled? 0= IF EXIT THEN
+    fmcp.log-tool-name 2@ nip IF
+    fmcp.log-enabled? IF
     0 0 fmcp.log-project-root 2!
     s" TOOL_START" fmcp.log-prefix
     s" id" fmcp.mcp-id-str fmcp.log-field
@@ -209,7 +209,8 @@ create fmcp.log-nlbuf 10 c,
         s" project_root=" fmcp.str-concat
         fmcp.log-project-root 2@ fmcp.str-concat
         fmcp.log-project-append
-    THEN ;
+    THEN
+    THEN THEN ;
 
 : fmcp.log-tool-end { text-a text-u elapsed-ms trunc-flag ec -- text-a text-u ec }
     fmcp.log-tool-name 2@ nip IF

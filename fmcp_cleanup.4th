@@ -13,19 +13,21 @@ require fmcp_utils.4th
     2drop true ;
 
 : fmcp.cleanup-stale-tmp ( -- )
-    fmcp.cleanup-enabled? 0= IF EXIT THEN
-    s" find /tmp -maxdepth 1 -name 'fmcp-*' -mmin +60 -delete 2>/dev/null"
-    fmcp.system-checked ;
+    fmcp.cleanup-enabled? IF
+        s" find /tmp -maxdepth 1 -name 'fmcp-*' -mmin +60 -delete 2>/dev/null"
+        system
+    THEN ;
 
 : fmcp.cleanup-own-tmp ( -- )
-    fmcp.cleanup-enabled? 0= IF EXIT THEN
-    s" rm -f /tmp/fmcp-cap-"
-    getpid fmcp.u>dec fmcp.str-concat
-    s" -* /tmp/fmcp-line-" fmcp.str-concat
-    getpid fmcp.u>dec fmcp.str-concat
-    s" .txt /tmp/fmcp-eval-" fmcp.str-concat
-    getpid fmcp.u>dec fmcp.str-concat
-    s" .4th /tmp/fmcp-json-" fmcp.str-concat
-    getpid fmcp.u>dec fmcp.str-concat
-    s" .out 2>/dev/null" fmcp.str-concat
-    fmcp.system-checked ;
+    fmcp.cleanup-enabled? IF
+        s" rm -f /tmp/fmcp-cap-"
+        getpid fmcp.u>dec fmcp.str-concat
+        s" -* /tmp/fmcp-line-" fmcp.str-concat
+        getpid fmcp.u>dec fmcp.str-concat
+        s" .txt /tmp/fmcp-eval-" fmcp.str-concat
+        getpid fmcp.u>dec fmcp.str-concat
+        s" .4th /tmp/fmcp-json-" fmcp.str-concat
+        getpid fmcp.u>dec fmcp.str-concat
+        s" .out 2>/dev/null" fmcp.str-concat
+        system
+    THEN ;
