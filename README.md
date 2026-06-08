@@ -1,6 +1,6 @@
 # fmcp
 [![License](https://img.shields.io/badge/License-COPL-red.svg)](https://raw.githubusercontent.com/VitaSound/fmcp/refs/heads/main/LICENSE)
-[![Ver](https://img.shields.io/badge/Ver-0.1.15-green.svg)](https://github.com/VitaSound/fmcp/releases/tag/v0.1.15)
+[![Ver](https://img.shields.io/badge/Ver-0.2.0-green.svg)](https://github.com/VitaSound/fmcp/releases/tag/0.2.0)
 [![Cov](https://img.shields.io/badge/Cov-71%25-yellow.svg)](https://github.com/VitaSound/fmcp/actions/workflows/ci.yml)
 
 MCP stdio bridge for the [VitaSound Forth tooling](https://github.com/VitaSound) family:
@@ -136,7 +136,7 @@ After `mcp.json` is set up, enable the server and teach the agent to call it.
 
 1. **Settings → MCP** — turn on **`vitasound-forth`**.
 2. Status must be **connected** (green). If not: **Refresh**, then check paths in `mcp.json` and [doc/API.md](doc/API.md).
-3. In chat you can ask: *«List MCP tools from vitasound-forth»* — expect `mcp_ping`, `shell_run`, `fmix_test`, `flint_lint`, `fmix_packages_get`, `fcov_run`, `fcov_report`, `gforth_eval`.
+3. In chat you can ask: *«List MCP tools from vitasound-forth»* — expect `mcp_ping`, `shell_run`, `fmix_check`, `fmix_test`, `flint_lint`, `fmix_packages_get`, `fcov_run`, `fcov_report`, `gforth_eval`.
 
 ### 2. Tell the agent to use MCP (not shell)
 
@@ -150,7 +150,7 @@ Agents do not auto-prefer MCP. Add guidance in the **workspace you code in** (fm
 Use MCP server **vitasound-forth** for packages, lint, tests, coverage.
 Do not run `fmix test` / `flint` / `fcov` via terminal when MCP tools exist.
 
-Order: `fmix_packages_get` → `flint_lint` → `fmix_test` → optional `fcov_*`.
+Order: `fmix_packages_get` → `fmix_check` (or `fmix_test` + `flint_lint` + optional `fcov_*`).
 `project_root` = absolute path to this repo (e.g. `/home/sea/fmix`).
 ```
 

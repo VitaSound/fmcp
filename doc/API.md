@@ -74,8 +74,9 @@ Request id via `fmcp.mcp-id-str` (numeric or string `id` in parse tree).
 | Tool name | Forth | Required JSON params |
 |-----------|-------|----------------------|
 | `fmix_test` | `fmcp.fmix-test` | `project_root`, optional `test_file`, optional `timeout_seconds` (default 120, max 300) |
+| `fmix_check` | `fmcp.fmix-check` | `project_root`, optional `stage` (`pre-commit` default), optional `timeout_seconds` (default 300), optional `fail_under`, optional `no_flint`, optional `no_fcov` |
 | `fmix_packages_get` | `fmcp.fmix-packages-get` | `project_root`, optional `timeout_seconds` (default 30, max 300) |
-| `flint_lint` | `fmcp.flint-lint` | `project_root`, optional `timeout_seconds` (default 60, max 300) |
+| `flint_lint` | `fmcp.flint-lint` | `project_root`, optional `timeout_seconds` (default 60, max 300), optional `strict`, optional `project_only` |
 | `fcov_run` | `fmcp.fcov-run` | `project_root`, optional `test_command`, optional `timeout_seconds` (default 300, max 300) |
 | `fcov_report` | `fmcp.fcov-report-json` | `project_root` |
 | `gforth_eval` | `fmcp.gforth-eval` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |

@@ -76,6 +76,9 @@ T{ s" fetch_tags" fmcp.root-args fmcp.tools-call-line
 T{ s" fmix_test" fmcp.args-fmix-test fmcp.tools-call-line
     fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
 
+T{ s" fmix_check" fmcp.root-args fmcp.tools-call-line
+    fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
+
 T{ s" fmix_packages_get" fmcp.root-args fmcp.tools-call-line
     fmcp.set-line fmcp.mcp-handle-core depth 0= -> -1 }T
 

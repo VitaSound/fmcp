@@ -38,6 +38,10 @@ require fmcp_result.4th
         s" test_file" fmcp.arg-string
         s" timeout_seconds" 120 fmcp.arg-number-default
         fmcp.fmix-test fmcp.tool-result-final
+    ELSE fmcp.log-tool-name 2@ s" fmix_check" compare 0= IF
+        s" project_root" fmcp.arg-string
+        s" timeout_seconds" 300 fmcp.arg-number-default
+        fmcp.fmix-check fmcp.tool-result-final
     ELSE fmcp.log-tool-name 2@ s" fmix_packages_get" compare 0= IF
         s" project_root" fmcp.arg-string
         s" timeout_seconds" 30 fmcp.arg-number-default
@@ -61,7 +65,7 @@ require fmcp_result.4th
         fmcp.gforth-eval fmcp.tool-result-final
     ELSE
         s" unknown tool" fmcp.result-error-node fmcp.tool-result-node
-    THEN THEN THEN THEN THEN THEN THEN THEN THEN ;
+    THEN THEN THEN THEN THEN THEN THEN THEN THEN THEN ;
 
 : fmcp.call-tool ( -- node )
     fmcp.tool-begin

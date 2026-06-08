@@ -40,8 +40,9 @@ Use MCP tools from **vitasound-forth** when working on any VitaSound Forth check
 | MCP tool | When | Arguments |
 |----------|------|-----------|
 | `fmix_packages_get` | After clone, or when `package.4th` / deps changed | `project_root` |
-| `flint_lint` | Before commit; after editing `.4th` | `project_root` |
-| `fmix_test` | Run unit tests | `project_root`, optional `test_file` |
+| `fmix_check` | Quality gate (preferred before commit) | `project_root`, optional `stage`, optional `fail_under`, optional `no_flint`, optional `no_fcov`, optional `timeout_seconds` (default 300) |
+| `flint_lint` | Lint only | `project_root`, optional `strict`, optional `project_only`, optional `timeout_seconds` |
+| `fmix_test` | Run unit tests only | `project_root`, optional `test_file` |
 | `fcov_run` | Coverage collection (when asked) | `project_root`, optional `test_command` (default `bin/fmcp test --shared` when `bin/fmcp` exists, else `fmix test`), optional `timeout_seconds` (default 300) |
 | `fcov_report` | Coverage JSON report | `project_root` |
 | `gforth_eval` | Ad-hoc Gforth snippet in `project_root` | `project_root`, `source`, optional `timeout_seconds` (default 10, max 300) |
@@ -51,9 +52,11 @@ Use MCP tools from **vitasound-forth** when working on any VitaSound Forth check
 ### Typical workflow
 
 ```text
-fmix_packages_get → flint_lint → fmix_test → (optional) fcov_run → fcov_report
+fmix_packages_get → fmix_check
 
-For **feco batch coverage** (`fcov_run` on many repos): prefer **fcov_run only** per repo (skip `flint_lint` in the same serve session). Call **`mcp_ping`** between repos; **restart MCP** if the session drops after ~8–10 heavy calls. Large `flint_lint` output (e.g. frules ~400KB) is truncated at `FMCP_MAX_OUTPUT` (default 256KB).
+Or step-by-step: `fmix_test` → `flint_lint` (optional `strict` / `project_only`) → `fcov_run` → `fcov_report`.
+
+**feco catalog** does not batch `fcov_run` — coverage comes from Cov badges in each repo README (`fetch-coverage.sh`).
 ```
 
 Use **`gforth_eval`** for quick stack checks instead of shell `gforth`; server enforces timeout (exit 124 → `isError`).

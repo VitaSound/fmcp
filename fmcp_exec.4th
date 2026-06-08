@@ -255,11 +255,37 @@ git tag -l 2>/dev/null | sed 's/^v//' | grep -E '^[0-9]' | sort -V
     root-a root-u 2swap timeout-u fmcp.run-capture-bg
     fmcp.apply-capture-prefix ;
 
+: fmcp.int-to-str ( n -- a u )
+    dup abs 0 <# #s #> 2dup nip IF EXIT THEN drop s" 0" ;
+
+: fmcp.arg-truthy? ( key-a key-u -- f )
+    fmcp.arg-string nip 0= IF false EXIT THEN
+    s" true" compare 0= ;
+
 : fmcp.flint-lint { root-a root-u timeout-u -- }
     fmcp.flint-home s" flint" s" " fmcp.bin-cmd
     s" lint ." fmcp.str-concat
+    s" strict" fmcp.arg-truthy? IF s" --strict" fmcp.str-concat THEN
+    s" project_only" fmcp.arg-truthy? IF s" --project-only" fmcp.str-concat THEN
     root-a root-u 2swap timeout-u fmcp.run-capture-bg
     fmcp.apply-capture-prefix ;
+
+: fmcp.fmix-check { root-a root-u timeout-u -- }
+    s" stage" fmcp.arg-string nip IF
+        s" stage" fmcp.arg-string
+    ELSE
+        s" pre-commit"
+    THEN { st-a st-u }
+    fmcp.fmix-home s" /bin/fmix check --stage " fmcp.str-concat
+    st-a st-u fmcp.str-concat
+    s" no_flint" fmcp.arg-truthy? IF s" --no-flint" fmcp.str-concat THEN
+    s" no_fcov" fmcp.arg-truthy? IF s" --no-fcov" fmcp.str-concat THEN
+    s" fail_under" fmcp.arg-number dup IF
+        s" --fail-under " fmcp.str-concat swap fmcp.int-to-str fmcp.str-concat
+    ELSE drop THEN
+    root-a root-u 2swap timeout-u fmcp.run-capture-bg
+    fmcp.apply-capture-prefix
+    st-a st-u drop free throw ;
 
 : fmcp.bin-exists? { root-a root-u tool-a tool-u -- f }
     root-a root-u s" bin" fmcp.fs-join

@@ -39,6 +39,14 @@ variable fmcp.schema-node
     s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_file\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\"]}"
     fjson.parse ;
 
+: fmcp.schema-flint-lint-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"},\"strict\":{\"type\":\"boolean\"},\"project_only\":{\"type\":\"boolean\"}},\"required\":[\"project_root\"]}"
+    fjson.parse ;
+
+: fmcp.schema-fmix-check-parse ( -- node )
+    s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"stage\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"},\"fail_under\":{\"type\":\"number\"},\"no_flint\":{\"type\":\"boolean\"},\"no_fcov\":{\"type\":\"boolean\"}},\"required\":[\"project_root\"]}"
+    fjson.parse ;
+
 : fmcp.schema-fcov-run-parse ( -- node )
     s\" {\"type\":\"object\",\"properties\":{\"project_root\":{\"type\":\"string\"},\"test_command\":{\"type\":\"string\"},\"timeout_seconds\":{\"type\":\"number\"}},\"required\":[\"project_root\"]}"
     fjson.parse ;
@@ -191,6 +199,13 @@ variable fmcp.schema-node
     s" inputSchema" fmcp.schema-shell-run-parse fmcp.b-entry @ fmcp.obj-add-key
     fmcp.b-entry @ fmcp.build-obj ;
 
+: fmcp.build-fmix-check-entry ( -- node )
+    ulist-new fmcp.b-entry !
+    s" name" s" fmix_check" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run fmix check quality gate (timeout default 300s)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-fmix-check-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj ;
+
 : fmcp.build-fmix-test-entry ( -- node )
     ulist-new fmcp.b-entry !
     s" name" s" fmix_test" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
@@ -211,8 +226,13 @@ variable fmcp.schema-node
     fmcp.build-shell-run-entry fmcp.b-lst @ ulist-add
     s" fetch_tags" s" Fetch project tags: scripts/fetch-tags.sh when present (feco), else git fetch --tags and list semver tags + package.4th version (timeout default 120s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-fmix-test-entry fmcp.b-lst @ ulist-add
+    fmcp.build-fmix-check-entry fmcp.b-lst @ ulist-add
     s" fmix_packages_get" s" Run fmix packages.get (timeout default 30s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
-    s" flint_lint" s" Run flint lint (timeout default 60s)" fmcp.schema-project-root-timeout-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
+    ulist-new fmcp.b-entry !
+    s" name" s" flint_lint" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" description" s" Run flint lint (timeout default 60s; optional strict, project_only)" fjson.node-str fmcp.b-entry @ fmcp.obj-add-key
+    s" inputSchema" fmcp.schema-flint-lint-parse fmcp.b-entry @ fmcp.obj-add-key
+    fmcp.b-entry @ fmcp.build-obj fmcp.b-lst @ ulist-add
     fmcp.build-fcov-run-entry fmcp.b-lst @ ulist-add
     s" fcov_report" s" fcov report json" fmcp.schema-project-root-parse fmcp.build-tool-entry fmcp.b-lst @ ulist-add
     fmcp.build-gforth-eval-entry fmcp.b-lst @ ulist-add

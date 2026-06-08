@@ -7,6 +7,16 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-08
+
+### Added
+- MCP tool **`fmix_check`** — runs `fmix check` with `stage`, optional
+  `fail_under`, `no_flint`, `no_fcov`, `timeout_seconds`.
+- **`flint_lint`**: optional `strict` and `project_only` boolean params.
+
+### Changed
+- `package.4th`: version **0.2.0**; pin `fmix ~> 0.8`, `flint ~> 0.3`.
+
 ## [0.1.15] - 2026-06-08
 
 ### Added
