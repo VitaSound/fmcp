@@ -86,3 +86,7 @@ After a failed batch, inspect logs (written by `fmcp serve`, not MCP client):
 | Per-repo tool | `$project_root/.fmcp/tool.log` (when logging enabled) |
 
 Look for the last `TOOL_START` without `TOOL_END` — that names the repo (`project_root=`) and tool where the session died. `REQ`/`REQ_DONE` pairs show which JSON-RPC methods completed. Shell `SESSION_END` lines (from `bin/fmcp`) record process exit status when Gforth did not flush `SESSION_END reason=`.
+
+## Planning changes: OpenSpec
+
+Plan non-trivial changes with [OpenSpec](https://github.com/Fission-AI/OpenSpec) in [`openspec/`](openspec/): `/opsx-explore` → `/opsx-propose <name>` → `/opsx-apply` → `/opsx-archive` (Cursor). Context and rules: [`openspec/config.yaml`](openspec/config.yaml). Write specs only for the change at hand; keep [doc/API.md](doc/API.md) in sync with the MCP tool contract.

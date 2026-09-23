@@ -1,0 +1,21 @@
+schema: spec-driven
+
+context: |
+  Language: Russian
+  All artifacts must be written in Russian.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Проект: fmcp — MCP stdio-мост (сервер vitasound-forth) для fmix, flint, fcov, gforth_eval, shell_run из Cursor и других MCP-клиентов; часть экосистемы VitaSound feco.
+  Правила агента: AGENTS.md; API инструментов: doc/API.md. Стек: Gforth, fjson (NDJSON), правила frules, package.4th.
+  Проверка: fmix test, flint, fcov run && fcov report, coverage gate (tests/coverage_mcp_gate.sh).
+
+rules:
+  specs:
+    - Список MCP-инструментов и их входные схемы — внешний контракт; изменения синхронизировать с doc/API.md
+  tasks:
+    - Каждое требование покрывать тестом в tests/
+
+operations:
+  apply:
+    guidance:
+      - Перед завершением прогонять fmix check; обновлять CHANGELOG.md и doc/API.md
