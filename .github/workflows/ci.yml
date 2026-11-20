@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: VitaSound/fmix
-          ref: 0.7.2
+          ref: 0.10.0
           path: fmix
 
       # No actions/cache for /opt — prefix is hard-coded in the engine;
