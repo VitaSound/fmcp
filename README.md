@@ -1,6 +1,6 @@
 # fmcp
 [![License](https://img.shields.io/badge/License-COPL-red.svg)](https://raw.githubusercontent.com/VitaSound/fmcp/refs/heads/main/LICENSE)
-[![Ver](https://img.shields.io/badge/Ver-0.2.0-green.svg)](https://github.com/VitaSound/fmcp/releases/tag/0.2.0)
+[![Ver](https://img.shields.io/badge/Ver-0.2.1-green.svg)](https://github.com/VitaSound/fmcp/releases/tag/0.2.1)
 [![Cov](https://img.shields.io/badge/Cov-71%25-yellow.svg)](https://github.com/VitaSound/fmcp/actions/workflows/ci.yml)
 
 MCP stdio bridge for the [VitaSound Forth tooling](https://github.com/VitaSound) family:

@@ -2,7 +2,7 @@
 \   https://theforth.net/guidelines
 forth-package
     key-value name fmcp
-    key-value version 0.2.0
+    key-value version 0.2.1
     key-value description MCP stdio bridge for VitaSound Forth tools (fmix, flint, fcov)
     key-value license COPL
     key-value main fmcp.4th

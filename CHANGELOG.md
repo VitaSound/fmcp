@@ -7,6 +7,12 @@ this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-21
+
+### Changed
+- Dispatch CLI commands via a dedicated wordlist (`synonym` + `search-wordlist`)
+  instead of a `compare` IF chain in `fmcp-dispatch`.
+
 ## [0.2.0] - 2026-06-08
 
 ### Added
