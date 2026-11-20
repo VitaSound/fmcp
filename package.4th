@@ -6,7 +6,7 @@ forth-package
     key-value description MCP stdio bridge for VitaSound Forth tools (fmix, flint, fcov)
     key-value license COPL
     key-value main fmcp.4th
-    key-value fmix ~> 0.8
+    key-value fmix ~> 0.10
     key-value flint ~> 0.3
     key-value fcov ~> 0.3
     key-list fcov-exclude tests/
